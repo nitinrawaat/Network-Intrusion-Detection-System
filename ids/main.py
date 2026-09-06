@@ -17,6 +17,7 @@ from ids.capture.packet_capture import (
     check_scapy_available,
 )
 from ids.parser import PacketParser
+from ids.detectors import DetectionEngine
 
 # Configure logging
 logging.basicConfig(
@@ -34,20 +35,19 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-BANNER = """
+
+def print_banner(interface: Optional[str] = None, pcap: Optional[str] = None, detector_count: int = 0):
+    """Display the system startup banner."""
+    banner = f"""
 +------------------------------------------------------------+
-|                PYTHON NETWORK IDS (PHASE 2)                |
+|                PYTHON NETWORK IDS (PHASE 5)                |
 +------------------------------------------------------------+
 | Status: ACTIVE                                             |
-| Mode: PACKET CAPTURE & INSPECTION                          |
-| Active Detectors: 0 (Baseline Capture Stage)               |
+| Mode: PACKET CAPTURE & THREAT DETECTION PIPELINE           |
+| Active Detectors: {detector_count:<40} |
 +------------------------------------------------------------+
 """
-
-
-def print_banner(interface: Optional[str] = None, pcap: Optional[str] = None):
-    """Display the system startup banner."""
-    print(BANNER)
+    print(banner)
     if pcap:
         print(f"[*] Mode: Offline PCAP Playback")
         print(f"[*] PCAP File: {pcap}")
@@ -111,6 +111,13 @@ def main():
         help="BPF filter string (e.g. 'tcp or udp', 'port 80').",
     )
     parser.add_argument(
+        "-C",
+        "--config",
+        type=str,
+        default=None,
+        help="Path to rules configuration JSON file.",
+    )
+    parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
@@ -132,7 +139,11 @@ def main():
         print(f"[!] Initialization Error: {e}", file=sys.stderr)
         sys.exit(1)
 
-    print_banner(interface=args.interface, pcap=args.pcap)
+    # Initialize Detection Engine
+    detection_engine = DetectionEngine(config_path=args.config)
+    active_detectors = detection_engine.get_active_detectors()
+
+    print_banner(interface=args.interface, pcap=args.pcap, detector_count=len(active_detectors))
 
     engine = PacketCaptureEngine(interface=args.interface)
 
@@ -148,28 +159,36 @@ def main():
     def packet_printer(pkt):
         summary = format_packet_summary(pkt)
         print(f"[{engine.packet_count:05d}] {summary}")
-        if args.verbose:
-            parsed = PacketParser.parse(pkt)
-            if parsed:
-                details = []
-                if parsed.ip:
-                    details.append(
-                        f"IP({parsed.ip.src_ip} -> {parsed.ip.dst_ip}, proto={parsed.ip.proto_name}, len={parsed.ip.length}, ttl={parsed.ip.ttl})"
-                    )
-                if parsed.tcp:
-                    details.append(
-                        f"TCP({parsed.tcp.src_port}->{parsed.tcp.dst_port}, flags={parsed.tcp.flags}, syn={parsed.tcp.is_syn}, ack={parsed.tcp.is_ack}, seq={parsed.tcp.seq})"
-                    )
-                if parsed.udp:
-                    details.append(f"UDP({parsed.udp.src_port}->{parsed.udp.dst_port}, len={parsed.udp.length})")
-                if parsed.icmp:
-                    details.append(f"ICMP(type={parsed.icmp.type}, code={parsed.icmp.code})")
-                if parsed.arp:
-                    details.append(f"ARP({parsed.arp.operation}, {parsed.arp.src_ip}->{parsed.arp.dst_ip})")
-                if parsed.dns and parsed.dns.query_name:
-                    details.append(f"DNS(qname={parsed.dns.query_name}, qtype={parsed.dns.query_type})")
-                if details:
-                    print(f"        └─ Normalized: {' | '.join(details)}")
+
+        # Parse normalized packet
+        parsed = PacketParser.parse(pkt)
+
+        if args.verbose and parsed:
+            details = []
+            if parsed.ip:
+                details.append(
+                    f"IP({parsed.ip.src_ip} -> {parsed.ip.dst_ip}, proto={parsed.ip.proto_name}, len={parsed.ip.length}, ttl={parsed.ip.ttl})"
+                )
+            if parsed.tcp:
+                details.append(
+                    f"TCP({parsed.tcp.src_port}->{parsed.tcp.dst_port}, flags={parsed.tcp.flags}, syn={parsed.tcp.is_syn}, ack={parsed.tcp.is_ack}, seq={parsed.tcp.seq})"
+                )
+            if parsed.udp:
+                details.append(f"UDP({parsed.udp.src_port}->{parsed.udp.dst_port}, len={parsed.udp.length})")
+            if parsed.icmp:
+                details.append(f"ICMP(type={parsed.icmp.type}, code={parsed.icmp.code})")
+            if parsed.arp:
+                details.append(f"ARP({parsed.arp.operation}, {parsed.arp.src_ip}->{parsed.arp.dst_ip})")
+            if parsed.dns and parsed.dns.query_name:
+                details.append(f"DNS(qname={parsed.dns.query_name}, qtype={parsed.dns.query_type})")
+            if details:
+                print(f"        └─ Normalized: {' | '.join(details)}")
+
+        # Evaluate across detection engine
+        if parsed:
+            alerts = detection_engine.process_packet(parsed)
+            for alert in alerts:
+                print(alert.format_alert())
 
     print("[+] Packet capture started. Listening for network traffic...\n")
     try:
@@ -181,6 +200,7 @@ def main():
         )
         print(f"\n[+] Packet capture finished successfully.")
         print(f"[+] Total packets captured: {total}")
+        print(f"[+] Total alerts generated: {detection_engine.stats['alerts_generated']}")
     except PermissionError as e:
         print(f"\n[!] PERMISSION ERROR: {e}", file=sys.stderr)
         print(
