@@ -56,7 +56,7 @@ sudo apt install -y python3 python3-pip python3-venv git tcpdump libpcap-dev
 Once your GitHub repository is updated:
 ```bash
 cd ~
-git clone <YOUR_GITHUB_REPO_URL> python-network-ids
+git clone https://github.com/NiTinRaWaTtt/Network-Intrusion-Detection-System.git python-network-ids
 cd python-network-ids
 ```
 
