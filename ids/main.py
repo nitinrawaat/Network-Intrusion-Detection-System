@@ -16,6 +16,7 @@ from ids.capture.packet_capture import (
     format_packet_summary,
     check_scapy_available,
 )
+from ids.parser import PacketParser
 
 # Configure logging
 logging.basicConfig(
@@ -147,6 +148,28 @@ def main():
     def packet_printer(pkt):
         summary = format_packet_summary(pkt)
         print(f"[{engine.packet_count:05d}] {summary}")
+        if args.verbose:
+            parsed = PacketParser.parse(pkt)
+            if parsed:
+                details = []
+                if parsed.ip:
+                    details.append(
+                        f"IP({parsed.ip.src_ip} -> {parsed.ip.dst_ip}, proto={parsed.ip.proto_name}, len={parsed.ip.length}, ttl={parsed.ip.ttl})"
+                    )
+                if parsed.tcp:
+                    details.append(
+                        f"TCP({parsed.tcp.src_port}->{parsed.tcp.dst_port}, flags={parsed.tcp.flags}, syn={parsed.tcp.is_syn}, ack={parsed.tcp.is_ack}, seq={parsed.tcp.seq})"
+                    )
+                if parsed.udp:
+                    details.append(f"UDP({parsed.udp.src_port}->{parsed.udp.dst_port}, len={parsed.udp.length})")
+                if parsed.icmp:
+                    details.append(f"ICMP(type={parsed.icmp.type}, code={parsed.icmp.code})")
+                if parsed.arp:
+                    details.append(f"ARP({parsed.arp.operation}, {parsed.arp.src_ip}->{parsed.arp.dst_ip})")
+                if parsed.dns and parsed.dns.query_name:
+                    details.append(f"DNS(qname={parsed.dns.query_name}, qtype={parsed.dns.query_type})")
+                if details:
+                    print(f"        └─ Normalized: {' | '.join(details)}")
 
     print("[+] Packet capture started. Listening for network traffic...\n")
     try:
