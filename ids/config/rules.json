@@ -1,0 +1,25 @@
+{
+  "port_scan": {
+    "enabled": true,
+    "unique_ports": 10,
+    "window_seconds": 5
+  },
+  "udp_scan": {
+    "enabled": true,
+    "unique_ports": 10,
+    "window_seconds": 5
+  },
+  "syn_flood": {
+    "enabled": true,
+    "syn_threshold": 200,
+    "window_seconds": 5
+  },
+  "arp_spoof": {
+    "enabled": true
+  },
+  "dns_anomaly": {
+    "enabled": true,
+    "query_threshold": 100,
+    "window_seconds": 60
+  }
+}
