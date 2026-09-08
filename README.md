@@ -13,7 +13,7 @@ The objective of this project is to understand the inner workings of network sec
   Network Interface (eth0 / ens33)
                 │
                 ▼
-         [Packet Capture]  ◄─── (Current Phase: Phase 2)
+         [Packet Capture]
                 │
                 ▼
          [Packet Parser]
@@ -22,12 +22,13 @@ The objective of this project is to understand the inner workings of network sec
        [Feature Extraction]
                 │
                 ▼
-        [Detection Engine]
-    ┌───────────┼───────────┐
-    ▼           ▼           ▼
-Port Scan   SYN Flood   ARP Spoof ...
-    │           │           │
-    └───────────┼───────────┘
+         [Detection Engine] ◄─── (Current Phase: Phase 6)
+     ┌───────────┼───────────┐
+     ▼           ▼           ▼
+[Port Scan]  SYN Flood   ARP Spoof ...
+ (ACTIVE)
+     │           │           │
+     └───────────┼───────────┘
                 ▼
          [Alert Manager]
          ┌──────┴──────┐

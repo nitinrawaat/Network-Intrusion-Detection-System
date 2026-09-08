@@ -40,7 +40,7 @@ def print_banner(interface: Optional[str] = None, pcap: Optional[str] = None, de
     """Display the system startup banner."""
     banner = f"""
 +------------------------------------------------------------+
-|                PYTHON NETWORK IDS (PHASE 5)                |
+|                PYTHON NETWORK IDS (PHASE 6)                |
 +------------------------------------------------------------+
 | Status: ACTIVE                                             |
 | Mode: PACKET CAPTURE & THREAT DETECTION PIPELINE           |
@@ -141,6 +141,7 @@ def main():
 
     # Initialize Detection Engine
     detection_engine = DetectionEngine(config_path=args.config)
+    detection_engine.register_default_detectors()
     active_detectors = detection_engine.get_active_detectors()
 
     print_banner(interface=args.interface, pcap=args.pcap, detector_count=len(active_detectors))

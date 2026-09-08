@@ -69,6 +69,13 @@ class DetectionEngine:
         status = "ENABLED" if detector.enabled else "DISABLED"
         logger.info(f"Registered detector '{detector.name}' [{status}]")
 
+    def register_default_detectors(self) -> None:
+        """Register built-in threat detectors configured in rules.json."""
+        port_scan_cfg = self.get_detector_config("port_scan")
+        if port_scan_cfg.get("enabled", True):
+            from ids.detectors.port_scan import PortScanDetector
+            self.register_detector(PortScanDetector(config=port_scan_cfg))
+
     def unregister_detector(self, detector_name: str) -> bool:
         """Remove a detector by name."""
         initial_len = len(self.detectors)
