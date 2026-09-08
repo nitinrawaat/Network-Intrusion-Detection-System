@@ -76,6 +76,11 @@ class DetectionEngine:
             from ids.detectors.port_scan import PortScanDetector
             self.register_detector(PortScanDetector(config=port_scan_cfg))
 
+        udp_scan_cfg = self.get_detector_config("udp_scan")
+        if udp_scan_cfg.get("enabled", True):
+            from ids.detectors.udp_scan import UdpScanDetector
+            self.register_detector(UdpScanDetector(config=udp_scan_cfg))
+
     def unregister_detector(self, detector_name: str) -> bool:
         """Remove a detector by name."""
         initial_len = len(self.detectors)
