@@ -86,6 +86,11 @@ class DetectionEngine:
             from ids.detectors.syn_flood import SynFloodDetector
             self.register_detector(SynFloodDetector(config=syn_flood_cfg))
 
+        arp_spoof_cfg = self.get_detector_config("arp_spoof")
+        if arp_spoof_cfg.get("enabled", True):
+            from ids.detectors.arp_spoof import ArpSpoofDetector
+            self.register_detector(ArpSpoofDetector(config=arp_spoof_cfg))
+
     def unregister_detector(self, detector_name: str) -> bool:
         """Remove a detector by name."""
         initial_len = len(self.detectors)
