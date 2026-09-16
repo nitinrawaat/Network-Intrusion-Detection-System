@@ -22,11 +22,11 @@ The objective of this project is to understand the inner workings of network sec
        [Feature Extraction]
                 │
                 ▼
-          [Detection Engine] ◄─── (Current Phase: Phase 7)
+          [Detection Engine] ◄─── (Current Phase: Phase 8)
      ┌───────────┼───────────┬───────────┐
      ▼           ▼           ▼           ▼
-[Port Scan]  [UDP Scan]  SYN Flood   ARP Spoof ...
- (ACTIVE)     (ACTIVE)
+[Port Scan]  [UDP Scan]  [SYN Flood] ARP Spoof ...
+ (ACTIVE)     (ACTIVE)    (ACTIVE)
      │           │           │           │
      └───────────┴───────────┼───────────┘
                 ▼

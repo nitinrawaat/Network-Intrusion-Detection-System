@@ -81,6 +81,11 @@ class DetectionEngine:
             from ids.detectors.udp_scan import UdpScanDetector
             self.register_detector(UdpScanDetector(config=udp_scan_cfg))
 
+        syn_flood_cfg = self.get_detector_config("syn_flood")
+        if syn_flood_cfg.get("enabled", True):
+            from ids.detectors.syn_flood import SynFloodDetector
+            self.register_detector(SynFloodDetector(config=syn_flood_cfg))
+
     def unregister_detector(self, detector_name: str) -> bool:
         """Remove a detector by name."""
         initial_len = len(self.detectors)
