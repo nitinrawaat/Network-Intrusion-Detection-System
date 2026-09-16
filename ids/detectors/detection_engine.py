@@ -91,6 +91,11 @@ class DetectionEngine:
             from ids.detectors.arp_spoof import ArpSpoofDetector
             self.register_detector(ArpSpoofDetector(config=arp_spoof_cfg))
 
+        dns_anomaly_cfg = self.get_detector_config("dns_anomaly")
+        if dns_anomaly_cfg.get("enabled", True):
+            from ids.detectors.dns_anomaly import DnsAnomalyDetector
+            self.register_detector(DnsAnomalyDetector(config=dns_anomaly_cfg))
+
     def unregister_detector(self, detector_name: str) -> bool:
         """Remove a detector by name."""
         initial_len = len(self.detectors)
