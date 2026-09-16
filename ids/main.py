@@ -19,6 +19,7 @@ from ids.capture.packet_capture import (
 from ids.parser import PacketParser
 from ids.detectors import DetectionEngine
 from ids.alerts import AlertManager, ConsoleAlertSink
+from ids.storage import JsonAlertStorage, SqliteAlertStorage
 
 # Configure logging
 logging.basicConfig(
@@ -41,7 +42,7 @@ def print_banner(interface: Optional[str] = None, pcap: Optional[str] = None, de
     """Display the system startup banner."""
     banner = f"""
 +------------------------------------------------------------+
-|                PYTHON NETWORK IDS (PHASE 11)               |
+|                PYTHON NETWORK IDS (PHASE 12)               |
 +------------------------------------------------------------+
 | Status: ACTIVE                                             |
 | Mode: PACKET CAPTURE & THREAT DETECTION PIPELINE           |
@@ -150,6 +151,19 @@ def main():
     alert_manager = AlertManager(config=alert_cfg)
     alert_manager.register_sink(ConsoleAlertSink())
 
+    # Initialize Persistent Storage (Phase 12)
+    storage_cfg = detection_engine.get_detector_config("storage")
+    json_storage = None
+    sqlite_storage = None
+    if storage_cfg.get("json_enabled", True):
+        json_path = storage_cfg.get("json_path", "logs/alerts.json")
+        json_storage = JsonAlertStorage(file_path=json_path)
+        alert_manager.register_sink(json_storage)
+    if storage_cfg.get("sqlite_enabled", True):
+        sqlite_path = storage_cfg.get("sqlite_path", "logs/events.db")
+        sqlite_storage = SqliteAlertStorage(db_path=sqlite_path)
+        alert_manager.register_sink(sqlite_storage)
+
     print_banner(interface=args.interface, pcap=args.pcap, detector_count=len(active_detectors))
 
     engine = PacketCaptureEngine(interface=args.interface)
@@ -214,6 +228,10 @@ def main():
             + alert_manager.metrics["suppressed_rate_limit"]
         )
         print(f"[+] Total alerts dispatched: {alert_manager.metrics['dispatched']} (Suppressed: {total_suppressed})")
+        if json_storage:
+            print(f"[+] Alerts recorded to JSON: {json_storage.file_path}")
+        if sqlite_storage:
+            print(f"[+] Alerts recorded to SQLite: {sqlite_storage.db_path} (Database total: {sqlite_storage.count()})")
     except PermissionError as e:
         print(f"\n[!] PERMISSION ERROR: {e}", file=sys.stderr)
         print(

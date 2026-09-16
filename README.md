@@ -29,11 +29,14 @@ The objective of this project is to understand the inner workings of network sec
  (ACTIVE)     (ACTIVE)    (ACTIVE)    (ACTIVE)     (ACTIVE)
      │           │           │           │           │
      └───────────┴───────────┼───────────┴───────────┘
-                             ▼
-                     [Alert Manager] ◄─── (Current Phase: Phase 11)
-                     ┌───────┴───────┐
-                     ▼               ▼
-             Console (ACTIVE)  JSON / SQLite
+                              ▼
+                      [Alert Manager] (ACTIVE)
+                      ┌───────┴───────┐
+                      ▼               ▼
+               Console (ACTIVE)  [Storage Engine] ◄─── (Current Phase: Phase 12)
+                                 ┌──────┴──────┐
+                                 ▼             ▼
+                            JSON (ACTIVE) SQLite (ACTIVE)
 ```
 
 ---

@@ -26,5 +26,11 @@
     "min_severity": "LOW",
     "dedup_window_seconds": 5.0,
     "max_rate_per_minute": 120
+  },
+  "storage": {
+    "json_enabled": true,
+    "json_path": "logs/alerts.json",
+    "sqlite_enabled": true,
+    "sqlite_path": "logs/events.db"
   }
 }
