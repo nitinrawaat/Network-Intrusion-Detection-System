@@ -22,18 +22,18 @@ The objective of this project is to understand the inner workings of network sec
        [Feature Extraction]
                 │
                 ▼
-          [Detection Engine] ◄─── (Current Phase: Phase 10)
+          [Detection Engine] 
      ┌───────────┬───────────┼───────────┬───────────┐
      ▼           ▼           ▼           ▼           ▼
 [Port Scan]  [UDP Scan]  [SYN Flood] [ARP Spoof] [DNS Anomaly]
  (ACTIVE)     (ACTIVE)    (ACTIVE)    (ACTIVE)     (ACTIVE)
      │           │           │           │           │
      └───────────┴───────────┼───────────┴───────────┘
-                ▼
-         [Alert Manager]
-         ┌──────┴──────┐
-         ▼             ▼
-      Console     JSON / SQLite
+                             ▼
+                     [Alert Manager] ◄─── (Current Phase: Phase 11)
+                     ┌───────┴───────┐
+                     ▼               ▼
+             Console (ACTIVE)  JSON / SQLite
 ```
 
 ---

@@ -18,6 +18,7 @@ from ids.capture.packet_capture import (
 )
 from ids.parser import PacketParser
 from ids.detectors import DetectionEngine
+from ids.alerts import AlertManager, ConsoleAlertSink
 
 # Configure logging
 logging.basicConfig(
@@ -40,7 +41,7 @@ def print_banner(interface: Optional[str] = None, pcap: Optional[str] = None, de
     """Display the system startup banner."""
     banner = f"""
 +------------------------------------------------------------+
-|                PYTHON NETWORK IDS (PHASE 10)               |
+|                PYTHON NETWORK IDS (PHASE 11)               |
 +------------------------------------------------------------+
 | Status: ACTIVE                                             |
 | Mode: PACKET CAPTURE & THREAT DETECTION PIPELINE           |
@@ -144,6 +145,11 @@ def main():
     detection_engine.register_default_detectors()
     active_detectors = detection_engine.get_active_detectors()
 
+    # Initialize Alert Manager
+    alert_cfg = detection_engine.get_detector_config("alerts")
+    alert_manager = AlertManager(config=alert_cfg)
+    alert_manager.register_sink(ConsoleAlertSink())
+
     print_banner(interface=args.interface, pcap=args.pcap, detector_count=len(active_detectors))
 
     engine = PacketCaptureEngine(interface=args.interface)
@@ -185,11 +191,11 @@ def main():
             if details:
                 print(f"        └─ Normalized: {' | '.join(details)}")
 
-        # Evaluate across detection engine
+        # Evaluate across detection engine & dispatch to Alert Manager
         if parsed:
             alerts = detection_engine.process_packet(parsed)
             for alert in alerts:
-                print(alert.format_alert())
+                alert_manager.dispatch(alert)
 
     print("[+] Packet capture started. Listening for network traffic...\n")
     try:
@@ -202,6 +208,12 @@ def main():
         print(f"\n[+] Packet capture finished successfully.")
         print(f"[+] Total packets captured: {total}")
         print(f"[+] Total alerts generated: {detection_engine.stats['alerts_generated']}")
+        total_suppressed = (
+            alert_manager.metrics["suppressed_dedup"]
+            + alert_manager.metrics["suppressed_severity"]
+            + alert_manager.metrics["suppressed_rate_limit"]
+        )
+        print(f"[+] Total alerts dispatched: {alert_manager.metrics['dispatched']} (Suppressed: {total_suppressed})")
     except PermissionError as e:
         print(f"\n[!] PERMISSION ERROR: {e}", file=sys.stderr)
         print(

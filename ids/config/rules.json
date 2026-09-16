@@ -21,5 +21,10 @@
     "enabled": true,
     "query_threshold": 100,
     "window_seconds": 60
+  },
+  "alerts": {
+    "min_severity": "LOW",
+    "dedup_window_seconds": 5.0,
+    "max_rate_per_minute": 120
   }
 }
