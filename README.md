@@ -22,21 +22,21 @@ The objective of this project is to understand the inner workings of network sec
        [Feature Extraction]
                 │
                 ▼
-          [Detection Engine] 
+          [Detection Engine] ◄─── (ACTIVE)
      ┌───────────┬───────────┼───────────┬───────────┐
      ▼           ▼           ▼           ▼           ▼
 [Port Scan]  [UDP Scan]  [SYN Flood] [ARP Spoof] [DNS Anomaly]
  (ACTIVE)     (ACTIVE)    (ACTIVE)    (ACTIVE)     (ACTIVE)
      │           │           │           │           │
      └───────────┴───────────┼───────────┴───────────┘
-                              ▼
-                      [Alert Manager] (ACTIVE)
-                      ┌───────┴───────┐
-                      ▼               ▼
-               Console (ACTIVE)  [Storage Engine] ◄─── (Current Phase: Phase 12)
-                                 ┌──────┴──────┐
-                                 ▼             ▼
-                            JSON (ACTIVE) SQLite (ACTIVE)
+                             ▼
+                     [Alert Manager] ◄─── (ACTIVE)
+                     ┌───────┴───────┐
+                     ▼               ▼
+              Console (ACTIVE) [Storage Engine] ◄─── (ACTIVE)
+                               ┌──────┴──────┐
+                               ▼             ▼
+                          JSON (ACTIVE) SQLite (ACTIVE)
 ```
 
 ---
@@ -86,11 +86,14 @@ python-network-ids/
 # Activate virtual environment
 .\.venv\Scripts\activate
 
-# Run tests
+# Run complete test suite
 python -m unittest discover -s tests
 
-# List available interfaces
+# List available network interfaces
 python -m ids.main --list-interfaces
+
+# Replay full multi-vector attack scenario through entire pipeline
+python -m ids.main --pcap samples/multi_vector_attack.pcap
 ```
 
 ### 2. Kali Linux VM Deployment (IDS Sensor)

@@ -42,10 +42,10 @@ def print_banner(interface: Optional[str] = None, pcap: Optional[str] = None, de
     """Display the system startup banner."""
     banner = f"""
 +------------------------------------------------------------+
-|                PYTHON NETWORK IDS (PHASE 12)               |
+|        PYTHON NETWORK INTRUSION DETECTION SYSTEM (IDS)     |
 +------------------------------------------------------------+
-| Status: ACTIVE                                             |
-| Mode: PACKET CAPTURE & THREAT DETECTION PIPELINE           |
+| Status: ACTIVE (PRODUCTION / ALL 13 PHASES COMPLETE)       |
+| Mode: FULL PACKET INSPECTION, DETECTION, TRIAGE & STORAGE  |
 | Active Detectors: {detector_count:<40} |
 +------------------------------------------------------------+
 """
