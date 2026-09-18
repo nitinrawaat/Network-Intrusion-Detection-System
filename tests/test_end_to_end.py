@@ -57,6 +57,9 @@ class TestEndToEndPipeline(unittest.TestCase):
         self.pcap_path = os.path.join(
             os.path.dirname(os.path.dirname(__file__)), "samples", "multi_vector_attack.pcap"
         )
+        if not os.path.exists(self.pcap_path):
+            from samples.generate_multi_vector_pcap import generate_multi_vector_pcap
+            generate_multi_vector_pcap(self.pcap_path)
 
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
