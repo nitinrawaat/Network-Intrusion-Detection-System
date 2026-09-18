@@ -94,6 +94,10 @@ python -m ids.main --list-interfaces
 
 # Replay full multi-vector attack scenario through entire pipeline
 python -m ids.main --pcap samples/multi_vector_attack.pcap
+
+# Launch Cyber SOC Web Dashboard
+python -m ids.main --web --port 8080
+# Open http://localhost:8080 in your browser
 ```
 
 ### 2. Kali Linux VM Deployment (IDS Sensor)
@@ -110,10 +114,14 @@ pip install -r requirements.txt
 # 3. List network interfaces
 sudo .venv/bin/python3 -m ids.main --list-interfaces
 
-# 4. Start live packet capture (e.g. on eth0)
-sudo .venv/bin/python3 -m ids.main --interface eth0
+# 4. Start live packet capture with Web Dashboard (e.g. on eth0)
+sudo .venv/bin/python3 -m ids.main --interface eth0 --web --port 8080
+
+# Or run Web Dashboard in standalone mode
+python3 -m ids.main --web --port 8080
 ```
 
+Access the Cyber SOC Dashboard at `http://<LINUX_OR_HOST_IP>:8080` to inspect live threats, telemetry charts, and packet forensics in real-time.
 Press `Ctrl+C` at any time to gracefully terminate and view capture metrics.
 
 ---

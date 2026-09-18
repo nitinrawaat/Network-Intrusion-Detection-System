@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AEGIS // Cyber Defense SOC - Network IDS Console</title>
+  <meta name="description" content="Real-time Network Intrusion Detection System Cyber SOC Dashboard for monitoring, triage, and threat forensics.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="cyber-theme">
+  <!-- Ambient background glow layers -->
+  <div class="ambient-glow glow-cyan"></div>
+  <div class="ambient-glow glow-crimson"></div>
+  <div class="cyber-grid-overlay"></div>
+
+  <!-- Main App Shell -->
+  <div class="app-container">
+    
+    <!-- Top Cyber Header -->
+    <header class="soc-header">
+      <div class="header-brand">
+        <div class="shield-badge">
+          <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4" stroke="#00f2fe" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="radar-ping"></div>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">AEGIS <span class="accent-text">// IDS SENSOR</span></div>
+          <div class="brand-subtitle">CYBER THREAT DETECTION & INCIDENT TRIAGE ENGINE</div>
+        </div>
+      </div>
+
+      <!-- Sensor Status HUD -->
+      <div class="header-hud">
+        <div class="status-indicator online" id="sensor-status-badge">
+          <span class="status-dot"></span>
+          <span class="status-label" id="sensor-status-text">SENSOR ACTIVE (MONITORING)</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">TIME</span>
+          <span class="hud-value font-mono" id="live-clock">00:00:00 UTC</span>
+        </div>
+        <div class="hud-item cursor-pointer" id="btn-change-target" title="Click to connect to remote Linux IDS IP">
+          <span class="hud-label">SENSOR HOST</span>
+          <span class="hud-value font-mono" id="hud-target-url" style="color:var(--accent-cyan);">LOCAL</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">STREAM</span>
+          <span class="hud-value" id="sse-status-pill">CONNECTED</span>
+        </div>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="header-actions">
+        <button id="btn-simulate" class="btn btn-primary glow-btn" title="Simulate multi-vector attack from PCAP">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          <span>Simulate Attack</span>
+        </button>
+
+        <button id="btn-config" class="btn btn-secondary" title="Tune detection thresholds">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span>Rule Tuner</span>
+        </button>
+
+        <button id="btn-audio-toggle" class="btn btn-icon" title="Toggle Alert Audio Chime">
+          <svg id="icon-sound-on" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+          <svg id="icon-sound-off" class="btn-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <line x1="23" y1="9" x2="17" y2="15"/>
+            <line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        </button>
+
+        <button id="btn-clear-db" class="btn btn-danger" title="Purge historical events">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          <span>Clear Logs</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Top KPI Stat Metric Cards -->
+    <section class="kpi-grid">
+      <!-- Total Alerts -->
+      <div class="kpi-card glass-panel" id="card-total-threats">
+        <div class="kpi-header">
+          <span class="kpi-title">TOTAL THREATS INTERCEPTED</span>
+          <span class="kpi-badge font-mono">ALL TIME</span>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value font-mono" id="stat-total-count">0</div>
+          <div class="kpi-trend" id="stat-threat-trend">
+            <span class="trend-icon">🛡️</span> Continuous Network Monitoring
+          </div>
+        </div>
+        <div class="kpi-bar-track">
+          <div class="kpi-bar-fill fill-cyan" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <!-- Critical Alerts -->
+      <div class="kpi-card glass-panel border-critical" id="card-critical">
+        <div class="kpi-header">
+          <span class="kpi-title text-critical">CRITICAL INCIDENTS</span>
+          <span class="kpi-badge badge-critical font-mono">PRIORITY 1</span>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value text-critical font-mono" id="stat-critical-count">0</div>
+          <div class="kpi-trend text-muted">Immediate Threat Response</div>
+        </div>
+        <div class="kpi-bar-track">
+          <div class="kpi-bar-fill fill-critical" id="bar-critical" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- High Severity -->
+      <div class="kpi-card glass-panel border-high" id="card-high">
+        <div class="kpi-header">
+          <span class="kpi-title text-high">HIGH SEVERITY</span>
+          <span class="kpi-badge badge-high font-mono">PRIORITY 2</span>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value text-high font-mono" id="stat-high-count">0</div>
+          <div class="kpi-trend text-muted">Port / UDP Scans Detected</div>
+        </div>
+        <div class="kpi-bar-track">
+          <div class="kpi-bar-fill fill-high" id="bar-high" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Active Threat Detectors -->
+      <div class="kpi-card glass-panel border-emerald" id="card-detectors">
+        <div class="kpi-header">
+          <span class="kpi-title text-emerald">ACTIVE DETECTORS</span>
+          <span class="kpi-badge badge-emerald font-mono">5 / 5 OPERATIONAL</span>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value text-emerald font-mono">100%</div>
+          <div class="detector-chips">
+            <span class="chip">Port</span>
+            <span class="chip">UDP</span>
+            <span class="chip">SYN</span>
+            <span class="chip">ARP</span>
+            <span class="chip">DNS</span>
+          </div>
+        </div>
+        <div class="kpi-bar-track">
+          <div class="kpi-bar-fill fill-emerald" style="width: 100%;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visual Analytics Deck -->
+    <section class="analytics-grid">
+      <!-- Threat Vector Distribution -->
+      <div class="chart-card glass-panel">
+        <div class="card-header">
+          <div class="header-title-group">
+            <span class="panel-icon">📊</span>
+            <h2 class="panel-title">THREAT VECTOR CLASSIFICATION</h2>
+          </div>
+          <span class="live-tag"><span class="pulse-dot"></span> LIVE</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="canvas-vectors" width="500" height="240"></canvas>
+        </div>
+      </div>
+
+      <!-- Severity Breakdown Donut -->
+      <div class="chart-card glass-panel">
+        <div class="card-header">
+          <div class="header-title-group">
+            <span class="panel-icon">🎯</span>
+            <h2 class="panel-title">SEVERITY RATIO</h2>
+          </div>
+        </div>
+        <div class="chart-wrapper donut-wrapper">
+          <canvas id="canvas-severity" width="240" height="240"></canvas>
+          <div class="donut-legend" id="donut-legend">
+            <div class="legend-item"><span class="dot bg-critical"></span> Critical</div>
+            <div class="legend-item"><span class="dot bg-high"></span> High</div>
+            <div class="legend-item"><span class="dot bg-medium"></span> Medium</div>
+            <div class="legend-item"><span class="dot bg-low"></span> Low</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Attacker Origins Matrix -->
+      <div class="chart-card glass-panel">
+        <div class="card-header">
+          <div class="header-title-group">
+            <span class="panel-icon">☣️</span>
+            <h2 class="panel-title">TOP ATTACKER ORIGIN MATRIX</h2>
+          </div>
+        </div>
+        <div class="top-sources-list" id="top-sources-container">
+          <div class="empty-state">No malicious sources recorded yet. Run simulation or capture traffic.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Incident Stream & Triage Table -->
+    <section class="incident-section glass-panel">
+      <div class="incident-header">
+        <div class="section-title-group">
+          <span class="panel-icon">⚡</span>
+          <h2 class="panel-title">LIVE INCIDENT STREAM & FORENSICS LOG</h2>
+          <span class="badge font-mono" id="incident-stream-badge">0 EVENTS</span>
+        </div>
+
+        <!-- Filter & Search Controls -->
+        <div class="incident-controls">
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="filter-search" placeholder="Search IP, vector, summary..." />
+          </div>
+
+          <select id="filter-severity" class="custom-select">
+            <option value="">All Severities</option>
+            <option value="CRITICAL">Critical Only</option>
+            <option value="HIGH">High Only</option>
+            <option value="MEDIUM">Medium Only</option>
+            <option value="LOW">Low Only</option>
+          </select>
+
+          <select id="filter-type" class="custom-select">
+            <option value="">All Threat Vectors</option>
+            <option value="TCP_PORT_SCAN">TCP Port Scan</option>
+            <option value="UDP_SCAN">UDP Scan</option>
+            <option value="SYN_FLOOD">SYN Flood</option>
+            <option value="ARP_SPOOF">ARP Spoof</option>
+            <option value="DNS_ANOMALY">DNS Anomaly</option>
+          </select>
+
+          <button id="btn-pause-stream" class="btn btn-secondary btn-sm" title="Toggle Auto-Scroll">
+            <span>⏸️ Pause</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Events Table -->
+      <div class="table-container">
+        <table class="incident-table" id="incident-table">
+          <thead>
+            <tr>
+              <th style="width: 140px;">TIMESTAMP</th>
+              <th style="width: 110px;">SEVERITY</th>
+              <th style="width: 160px;">THREAT VECTOR</th>
+              <th style="width: 140px;">ATTACKER (SRC)</th>
+              <th style="width: 140px;">TARGET (DST)</th>
+              <th>INCIDENT DESCRIPTION</th>
+              <th style="width: 90px; text-align: center;">ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="incident-tbody">
+            <tr class="empty-row">
+              <td colspan="7">
+                <div class="table-empty">
+                  <div class="pulse-radar-loader"></div>
+                  <div class="empty-text">Listening for security events on sensor interface...</div>
+                  <div class="empty-hint">Click <strong>"Simulate Attack"</strong> above to replay pre-recorded multi-vector scenarios.</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Deep Forensic Inspection Drawer / Modal -->
+  <div class="modal-backdrop hidden" id="forensics-modal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">🔬</span>
+          <h3 class="modal-title" id="forensic-title">DEEP PACKET FORENSICS</h3>
+        </div>
+        <button class="modal-close" id="btn-close-forensic">&times;</button>
+      </div>
+      <div class="modal-body" id="forensic-body">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Rule Tuner Modal -->
+  <div class="modal-backdrop hidden" id="config-modal">
+    <div class="modal-card glass-panel config-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">⚙️</span>
+          <h3 class="modal-title">IDS DETECTION RULE TUNER</h3>
+        </div>
+        <button class="modal-close" id="btn-close-config">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="config-form" class="config-grid">
+          <!-- Port Scan -->
+          <div class="config-section">
+            <h4 class="config-heading">TCP Port Scan Detector</h4>
+            <div class="form-row">
+              <label>Unique Ports Threshold:</label>
+              <input type="number" id="cfg-ps-ports" min="1" max="1000" class="input-number" />
+            </div>
+            <div class="form-row">
+              <label>Time Window (seconds):</label>
+              <input type="number" id="cfg-ps-window" min="1" max="60" class="input-number" />
+            </div>
+          </div>
+
+          <!-- UDP Scan -->
+          <div class="config-section">
+            <h4 class="config-heading">UDP Scan Detector</h4>
+            <div class="form-row">
+              <label>Unique Ports Threshold:</label>
+              <input type="number" id="cfg-udp-ports" min="1" max="1000" class="input-number" />
+            </div>
+            <div class="form-row">
+              <label>Time Window (seconds):</label>
+              <input type="number" id="cfg-udp-window" min="1" max="60" class="input-number" />
+            </div>
+          </div>
+
+          <!-- SYN Flood -->
+          <div class="config-section">
+            <h4 class="config-heading">TCP SYN Flood Detector</h4>
+            <div class="form-row">
+              <label>SYN Packets Threshold:</label>
+              <input type="number" id="cfg-syn-thresh" min="10" max="10000" class="input-number" />
+            </div>
+            <div class="form-row">
+              <label>Time Window (seconds):</label>
+              <input type="number" id="cfg-syn-window" min="1" max="60" class="input-number" />
+            </div>
+          </div>
+
+          <!-- Alert Triage -->
+          <div class="config-section">
+            <h4 class="config-heading">Alert Triage & Rate Limiter</h4>
+            <div class="form-row">
+              <label>Min Severity:</label>
+              <select id="cfg-alert-min" class="custom-select">
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+                <option value="CRITICAL">CRITICAL</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Deduplication Window (s):</label>
+              <input type="number" step="0.5" id="cfg-alert-dedup" class="input-number" />
+            </div>
+            <div class="form-row">
+              <label>Max Alerts / Minute:</label>
+              <input type="number" id="cfg-alert-rate" class="input-number" />
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-config">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btn-save-config">Save & Apply Rules</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Audio Context Chime Synth -->
+  <script src="/js/app.js"></script>
+</body>
+</html>

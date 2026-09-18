@@ -20,6 +20,7 @@ from ids.parser import PacketParser
 from ids.detectors import DetectionEngine
 from ids.alerts import AlertManager, ConsoleAlertSink
 from ids.storage import JsonAlertStorage, SqliteAlertStorage
+from ids.web.server import DashboardServer, WebBroadcastSink
 
 # Configure logging
 logging.basicConfig(
@@ -120,6 +121,24 @@ def main():
         help="Path to rules configuration JSON file.",
     )
     parser.add_argument(
+        "--web",
+        "--dashboard",
+        action="store_true",
+        help="Launch the IDS Cyber SOC Web Dashboard.",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8080,
+        help="Port for the Web SOC Dashboard (default: 8080).",
+    )
+    parser.add_argument(
+        "--host",
+        type=str,
+        default="0.0.0.0",
+        help="Host address for the Web SOC Dashboard (default: 0.0.0.0).",
+    )
+    parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
@@ -164,6 +183,34 @@ def main():
         sqlite_storage = SqliteAlertStorage(db_path=sqlite_path)
         alert_manager.register_sink(sqlite_storage)
 
+    # Web Dashboard Integration
+    web_server = None
+    if args.web:
+        broadcast_sink = WebBroadcastSink()
+        alert_manager.register_sink(broadcast_sink)
+        web_server = DashboardServer(
+            host=args.host,
+            port=args.port,
+            config_path=args.config or "ids/config/rules.json",
+            sqlite_storage=sqlite_storage,
+            alert_manager=alert_manager,
+            broadcast_sink=broadcast_sink,
+        )
+
+        # If only running web dashboard without live sniffing or pcap
+        if not args.interface and not args.pcap:
+            print_banner(interface=None, pcap=None, detector_count=len(active_detectors))
+            print(f"[+] AEGIS Cyber SOC Dashboard running at: http://localhost:{args.port}")
+            print(f"[+] Listening on: {args.host}:{args.port}")
+            print("[*] Access the dashboard from your browser to monitor threats and run simulations.")
+            print("[*] Press Ctrl+C at any time to gracefully shut down.\n" + "-" * 60)
+            web_server.start(block=True)
+            return
+
+        # Running alongside live interface capture or PCAP playback
+        print(f"[+] Launching AEGIS Cyber SOC Dashboard at: http://localhost:{args.port}")
+        web_server.start(block=False)
+
     print_banner(interface=args.interface, pcap=args.pcap, detector_count=len(active_detectors))
 
     engine = PacketCaptureEngine(interface=args.interface)
@@ -171,6 +218,8 @@ def main():
     # Signal handler for graceful stop
     def stop_signal_handler(sig, frame):
         print("\n\n[!] Interrupt received. Initiating graceful shutdown...")
+        if web_server:
+            web_server.stop()
         engine.stop()
 
     signal.signal(signal.SIGINT, stop_signal_handler)
@@ -243,6 +292,9 @@ def main():
     except Exception as e:
         print(f"\n[!] Capture encountered an error: {e}", file=sys.stderr)
         sys.exit(1)
+    finally:
+        if web_server and web_server.is_running:
+            web_server.stop()
 
 
 if __name__ == "__main__":

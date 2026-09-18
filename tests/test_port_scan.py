@@ -2,8 +2,13 @@
 Unit tests for PortScanDetector (Phase 6).
 """
 
+import sys
+import os
 import unittest
 import time
+
+# Ensure project root is in sys.path when run directly
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from ids.parser.packet_parser import ParsedPacket, IPHeader, TCPHeader, UDPHeader
 from ids.models.events import Severity
