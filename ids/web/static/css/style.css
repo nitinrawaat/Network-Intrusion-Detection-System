@@ -1158,13 +1158,14 @@ body.donezo-theme {
 .sensor-card-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 16px;
   margin-top: 14px;
 }
 
 .sensor-ctrl-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   border: none;
   cursor: pointer;
@@ -1194,13 +1195,6 @@ body.donezo-theme {
 .btn-red-round:hover {
   transform: scale(1.08);
   background-color: #DC2626;
-}
-
-.sensor-actions-hint {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
-  font-weight: 600;
-  margin-left: auto;
 }
 
 /* ==========================================================================

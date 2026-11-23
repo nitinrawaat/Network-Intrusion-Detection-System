@@ -812,11 +812,11 @@
         if (snifferPaused) {
           showToast('Live packet sniffer feed paused');
           btnSensorPause.title = 'Resume Live Feed';
-          btnSensorPause.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+          btnSensorPause.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="7 4 20 12 7 20 7 4"/></svg>`;
         } else {
           showToast('Live packet sniffer feed resumed');
           btnSensorPause.title = 'Pause Live Feed';
-          btnSensorPause.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
+          btnSensorPause.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="6" y="5" width="3.5" height="14" rx="1.5"/><rect x="14.5" y="5" width="3.5" height="14" rx="1.5"/></svg>`;
         }
       });
     }
@@ -824,7 +824,7 @@
     const btnSensorSimulate = document.getElementById('btn-sensor-simulate');
     if (btnSensorSimulate) {
       btnSensorSimulate.addEventListener('click', async () => {
-        showToast('Injecting high-velocity test attack vector...');
+        showToast('Stream buffer stopped & flushed');
         try {
           await fetch('/api/simulate', {
             method: 'POST',
