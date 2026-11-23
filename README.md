@@ -173,5 +173,30 @@ Press `Ctrl+C` at any time to gracefully terminate and view capture metrics.
 
 ---
 
+## 🤖 Machine Learning Roadmap (Phase 15)
+
+To complement the rule-based sliding-window detectors, AEGIS is evolving toward **hybrid AI-assisted intrusion detection**:
+
+```
+[Raw Packets] ──► [Flow Feature Extractor] ──► [Trained ML Model] ──► [MLAnomalyDetector] ──► [Dashboard & Alerts]
+                   - Flow duration              - Random Forest /      - Emits SecurityEvent   - ML Confidence Score
+                   - Packet size mean/std         Isolation Forest     - MITRE T1000/T1046     - Anomaly Heatmap
+                   - Inter-arrival times        - ONNX / Joblib
+                   - TCP flag distribution
+```
+
+1. **Flow Aggregator & Feature Extractor (`ids/features/`)**:
+   - Groups raw packets into 5-tuple bidirectional flows (`src_ip`, `dst_ip`, `src_port`, `dst_port`, `protocol`).
+   - Computes statistical flow metrics: inter-arrival times (IAT), packet length variance, flag ratios (SYN/ACK/FIN/RST), and flow byte velocity.
+2. **Model Training Pipeline (`ml/train.py`)**:
+   - **Supervised Classification**: Random Forest / XGBoost trained on **CIC-IDS2017** benchmark dataset for multi-class attack identification (`PORT_SCAN`, `DOS_SYN_FLOOD`, `BOTNET`, `BRUTE_FORCE`).
+   - **Unsupervised Anomaly Detection**: Isolation Forest / Autoencoder trained strictly on baseline benign network flows to detect zero-day anomalies without signature rules.
+3. **Real-Time ML Detector Plugin (`ids/detectors/ml_detector.py`)**:
+   - Ingests live flows, evaluates inference confidence, and emits standardized `SecurityEvent` alerts when confidence exceeds 85%.
+4. **SOC Console AI Insights**:
+   - Surfaces real-time ML confidence badges, model decision rationales, and anomaly heatmaps on the incident logs interface.
+
+---
+
 ## 🛡️ Security & Scope
 This project is strictly for defensive cybersecurity education and lab research. All testing and attack traffic generation must be restricted to isolated lab machines and authorized test networks.
