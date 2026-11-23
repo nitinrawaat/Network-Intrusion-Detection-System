@@ -717,26 +717,49 @@
       const qBody = document.getElementById('quarantine-body');
       if (!qModal || !qBody) return;
 
+      qBody.innerHTML = `
+        <div style="text-align:center; padding:24px; color:var(--text-muted); font-size:13px;">
+          Loading active firewall quarantine rules...
+        </div>
+      `;
+      qModal.classList.remove('hidden');
+
       fetch('/api/quarantine')
         .then(res => res.json())
         .then(data => {
-          const list = data.quarantined_hosts || [];
+          const list = data.quarantined_ips || data.quarantined_hosts || data.active_quarantine_list || [];
           if (list.length === 0) {
             qBody.innerHTML = `
-              <div style="text-align:center; padding:30px 20px;">
-                <p style="font-size:13px; color:#6B7280;">Zero hosts currently isolated. Active IPS firewall drop rules are clear.</p>
+              <div style="text-align:center; padding:36px 20px;">
+                <div style="width:48px; height:48px; border-radius:50%; background:#ECFDF5; color:#059669; display:flex; align-items:center; justify-content:center; margin:0 auto 12px auto;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                </div>
+                <h4 style="font-size:14px; font-weight:700; color:#111827; margin-bottom:4px;">No Hosts Currently Quarantined</h4>
+                <p style="font-size:12px; color:#6B7280;">Active IPS firewall blocklist is empty. All network endpoints are in normal routing state.</p>
               </div>
             `;
           } else {
-            let html = '<div style="display:flex; flex-direction:column; gap:10px;">';
+            let html = '<div style="display:flex; flex-direction:column; gap:12px;">';
             list.forEach(item => {
+              const ipStr = item.ip || item.source_ip || 'Unknown IP';
+              const reasonStr = item.reason || 'Malicious Network Traffic';
+              const statusStr = item.status || 'PACKETS_DROPPED';
+              const timeStr = item.blocked_at || 'Active Enforced';
               html += `
-                <div style="background:#FEF2F2; padding:14px; border-radius:12px; border:1px solid #FECACA; display:flex; align-items:center; justify-content:space-between;">
-                  <div>
-                    <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#DC2626; font-size:13.5px;">${item.ip}</span>
-                    <p style="font-size:11px; color:#7F1D1D; margin-top:2px;">Reason: ${item.reason || 'Malicious Flood'}</p>
+                <div style="background:#FEF2F2; padding:16px; border-radius:14px; border:1px solid #FECACA; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+                  <div style="flex:1; min-width:0;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <span style="font-family:var(--font-mono); font-weight:800; color:#DC2626; font-size:14px;">${ipStr}</span>
+                      <span style="background:#FEE2E2; color:#991B1B; font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px;">${statusStr}</span>
+                    </div>
+                    <p style="font-size:11.5px; color:#7F1D1D; margin-top:4px; font-weight:500;">${reasonStr}</p>
+                    <span style="font-size:10.5px; color:#991B1B; display:block; margin-top:2px; font-family:var(--font-mono);">Enforced: ${timeStr}</span>
                   </div>
-                  <button class="btn-pill-small" style="background:#FFFFFF; color:#DC2626; border-color:#FECACA;" onclick="window.unquarantineIp('${item.ip}')">Unblock</button>
+                  <button class="btn-secondary-white" style="background:#FFFFFF; color:#DC2626; border-color:#FCA5A5; padding:6px 14px; font-size:11.5px; cursor:pointer;" onclick="window.unquarantineIp('${ipStr}')">
+                    Unblock IP
+                  </button>
                 </div>
               `;
             });
@@ -745,10 +768,8 @@
           }
         })
         .catch(() => {
-          qBody.innerHTML = '<p style="color:#6B7280; font-size:13px;">Firewall drop rules active.</p>';
+          qBody.innerHTML = '<p style="color:#6B7280; font-size:13px; text-align:center; padding:20px;">Firewall drop rules active.</p>';
         });
-
-      qModal.classList.remove('hidden');
     }
 
     const btnCloseQuarantine = document.getElementById('btn-close-quarantine');
@@ -842,14 +863,13 @@
   // --- UNQUARANTINE ACTION ---
   window.unquarantineIp = async function(ip) {
     try {
-      await fetch('/api/quarantine', {
+      await fetch('/api/quarantine/unblock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ip, action: 'unblock' })
+        body: JSON.stringify({ ip })
       });
       showToast(`Host ${ip} removed from quarantine`);
-      const modal = document.getElementById('quarantine-modal');
-      if (modal) modal.classList.add('hidden');
+      openQuarantineModal();
       syncBackendData();
     } catch {
       showToast(`Unblocked ${ip}`);

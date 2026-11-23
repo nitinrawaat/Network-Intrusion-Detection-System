@@ -386,6 +386,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         ips = list(self.server_instance.quarantined_ips.values())
         self._send_json({
             "quarantined_ips": ips,
+            "quarantined_hosts": ips,
             "count": len(ips),
             "firewall_status": "ACTIVE (SIMULATED_IPS_BLOCKLIST)",
         })
