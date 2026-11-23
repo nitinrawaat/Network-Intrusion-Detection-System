@@ -3,574 +3,743 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AEGIS // Cyber Defense SOC Console v2.0 - Network IDS</title>
-  <meta name="description" content="Enterprise Network Intrusion Detection System Cyber SOC Dashboard for monitoring, MITRE ATT&CK triage, telemetry, and active IPS defense.">
+  <title>AEGIS IDS // Cyber Threat Detection SOC</title>
+  <meta name="description" content="AEGIS Cyber Threat Detection & Intrusion Prevention SOC Console. Real-time network telemetry, automated attack mitigation, and MITRE ATT&CK correlation.">
   
-  <!-- Modern Google Fonts -->
+  <!-- Plus Jakarta Sans & JetBrains Mono Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="/css/style.css?v=2.1">
+  <link rel="stylesheet" href="/css/style.css?v=4.1">
 </head>
-<body class="cyber-theme">
-  <!-- Ambient background glow layers -->
-  <div class="ambient-glow glow-cyan"></div>
-  <div class="ambient-glow glow-crimson"></div>
-  <div class="cyber-grid-overlay"></div>
-
-  <!-- Main App Shell -->
-  <div class="app-container">
+<body class="donezo-theme">
+  <!-- Outer Page Frame Container -->
+  <div class="page-container">
     
-    <!-- Top Cyber SOC Header -->
-    <header class="soc-header">
-      <div class="header-brand">
-        <div class="shield-badge">
-          <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <path d="M9 12l2 2 4-4" stroke="#00f2fe" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <div class="radar-ping"></div>
-        </div>
-        <div class="brand-text">
-          <div class="brand-title">AEGIS <span class="accent-text">// CYBER SOC v2.0</span></div>
-          <div class="brand-subtitle">CYBER THREAT DETECTION & INCIDENT TRIAGE ENGINE // MITRE ATT&CK & ACTIVE IPS</div>
-        </div>
-      </div>
-
-      <!-- Sensor Status HUD -->
-      <div class="header-hud">
-        <div class="status-indicator online" id="sensor-status-badge">
-          <span class="status-dot"></span>
-          <span class="status-label" id="sensor-status-text">SENSOR ACTIVE</span>
-        </div>
-        <div class="hud-item defcon-pill" id="hud-threat-defcon">
-          <span class="hud-label">DEFCON</span>
-          <span class="hud-value font-mono defcon-val" id="defcon-status-text">NORMAL</span>
-        </div>
-        <div class="hud-item">
-          <span class="hud-label">TIME</span>
-          <span class="hud-value font-mono" id="live-clock">00:00:00 UTC</span>
-        </div>
-        <div class="hud-item cursor-pointer" id="btn-change-target" title="Sensor IP target">
-          <span class="hud-label">HOST</span>
-          <span class="hud-value font-mono" id="hud-target-url" style="color:var(--accent-cyan);">LOCAL SENSOR</span>
-        </div>
-        <div class="hud-item">
-          <span class="hud-label">STREAM</span>
-          <span class="hud-value font-mono" id="sse-status-pill">CONNECTED</span>
-        </div>
-      </div>
-
-      <!-- Action Bar -->
-      <div class="header-actions">
-        <!-- Attack Scenario Launcher -->
-        <button id="btn-open-scenarios" class="btn btn-primary glow-btn" title="Open Multi-Vector Attack Simulator">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="5 3 19 12 5 21 5 3"/>
-          </svg>
-          <span>Attack Launcher</span>
-        </button>
-
-        <!-- CSV Export -->
-        <button id="btn-export-csv" class="btn btn-secondary" title="Export incident report as CSV">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          <span>Export Report</span>
-        </button>
-
-        <!-- Rule Tuner -->
-        <button id="btn-config" class="btn btn-secondary" title="Tune detection thresholds">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
-          <span>Rule Tuner</span>
-        </button>
-
-        <!-- Audio Alert Chime Toggle -->
-        <button id="btn-audio-toggle" class="btn btn-icon" title="Toggle Alert Audio Chime">
-          <svg id="icon-sound-on" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          </svg>
-          <svg id="icon-sound-off" class="btn-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <line x1="23" y1="9" x2="17" y2="15"/>
-            <line x1="17" y1="9" x2="23" y2="15"/>
-          </svg>
-        </button>
-
-        <!-- Clear Logs -->
-        <button id="btn-clear-db" class="btn btn-danger" title="Purge database events and reset">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-          </svg>
-          <span>Clear Logs</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- Top KPI Stat Metric Strip -->
-    <section class="kpi-grid">
-      <!-- Total Alerts -->
-      <div class="kpi-card glass-panel" id="card-total-threats">
-        <div class="kpi-header">
-          <span class="kpi-title">TOTAL INCIDENTS INTERCEPTED</span>
-          <span class="kpi-badge font-mono">ALL TIME</span>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value font-mono" id="stat-total-count">0</div>
-          <div class="kpi-trend" id="stat-threat-trend">
-            <span class="trend-icon">🛡️</span> Continuous Packet Sniffing
-          </div>
-        </div>
-        <div class="kpi-bar-track">
-          <div class="kpi-bar-fill fill-cyan" style="width: 100%;"></div>
-        </div>
-      </div>
-
-      <!-- Critical Alerts -->
-      <div class="kpi-card glass-panel border-critical" id="card-critical">
-        <div class="kpi-header">
-          <span class="kpi-title text-critical">CRITICAL PRIORITY</span>
-          <span class="kpi-badge badge-critical font-mono">PRIORITY 1</span>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value text-critical font-mono" id="stat-critical-count">0</div>
-          <div class="kpi-trend text-muted">SYN Floods & MITM Poisoning</div>
-        </div>
-        <div class="kpi-bar-track">
-          <div class="kpi-bar-fill fill-critical" id="bar-critical" style="width: 0%;"></div>
-        </div>
-      </div>
-
-      <!-- High Severity -->
-      <div class="kpi-card glass-panel border-high" id="card-high">
-        <div class="kpi-header">
-          <span class="kpi-title text-high">HIGH SEVERITY</span>
-          <span class="kpi-badge badge-high font-mono">PRIORITY 2</span>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value text-high font-mono" id="stat-high-count">0</div>
-          <div class="kpi-trend text-muted">Port Scans & DNS Exfiltration</div>
-        </div>
-        <div class="kpi-bar-track">
-          <div class="kpi-bar-fill fill-high" id="bar-high" style="width: 0%;"></div>
-        </div>
-      </div>
-
-      <!-- Active IPS Quarantine -->
-      <div class="kpi-card glass-panel border-quarantine" id="card-quarantine">
-        <div class="kpi-header">
-          <span class="kpi-title text-purple">ACTIVE IPS QUARANTINE</span>
-          <span class="kpi-badge badge-purple font-mono" id="badge-quarantine-status">ENFORCING</span>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value text-purple font-mono" id="stat-quarantine-count">0</div>
-          <div class="kpi-trend text-muted">Automated Threat Mitigation</div>
-        </div>
-        <div class="kpi-bar-track">
-          <div class="kpi-bar-fill fill-purple" id="bar-quarantine" style="width: 100%;"></div>
-        </div>
-      </div>
-
-      <!-- Active Threat Detectors -->
-      <div class="kpi-card glass-panel border-emerald" id="card-detectors">
-        <div class="kpi-header">
-          <span class="kpi-title text-emerald">ACTIVE DETECTORS</span>
-          <span class="kpi-badge badge-emerald font-mono">5 / 5 OPERATIONAL</span>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value text-emerald font-mono">100%</div>
-          <div class="detector-chips">
-            <span class="chip">Port</span>
-            <span class="chip">UDP</span>
-            <span class="chip">SYN</span>
-            <span class="chip">ARP</span>
-            <span class="chip">DNS</span>
-          </div>
-        </div>
-        <div class="kpi-bar-track">
-          <div class="kpi-bar-fill fill-emerald" style="width: 100%;"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Visual SOC Telemetry Decks (Row 1) -->
-    <section class="telemetry-grid">
-      <!-- Interactive Network Attack Topology Visualizer -->
-      <div class="chart-card glass-panel topology-card">
-        <div class="card-header">
-          <div class="header-title-group">
-            <span class="panel-icon">🕸️</span>
-            <div>
-              <h2 class="panel-title">LIVE NETWORK ATTACK TOPOLOGY GRAPH</h2>
-              <span class="panel-subtitle">Real-time threat vectors propagating against monitored IDS sensor</span>
-            </div>
-          </div>
-          <div class="topology-legend">
-            <span class="topo-legend-item"><span class="dot bg-cyan pulse-dot"></span> Sensor Host</span>
-            <span class="topo-legend-item"><span class="dot bg-critical"></span> Attacker Nodes</span>
-          </div>
-        </div>
-        <div class="chart-wrapper topology-wrapper">
-          <canvas id="canvas-topology" width="560" height="260"></canvas>
-        </div>
-      </div>
-
-      <!-- Rolling Telemetry & Throughput Timeline -->
-      <div class="chart-card glass-panel timeline-card">
-        <div class="card-header">
-          <div class="header-title-group">
-            <span class="panel-icon">📈</span>
-            <div>
-              <h2 class="panel-title">REAL-TIME TRAFFIC & THREAT TIMELINE</h2>
-              <span class="panel-subtitle">Rolling packets per second & incident spikes</span>
-            </div>
-          </div>
-          <span class="live-tag"><span class="pulse-dot"></span> STREAMING</span>
-        </div>
-        <div class="chart-wrapper">
-          <canvas id="canvas-telemetry" width="560" height="260"></canvas>
-        </div>
-      </div>
-    </section>
-
-    <!-- MITRE ATT&CK Framework Enterprise Matrix Strip -->
-    <section class="mitre-section glass-panel">
-      <div class="mitre-header">
-        <div class="header-title-group">
-          <span class="panel-icon">🎯</span>
-          <div>
-            <h2 class="panel-title">MITRE ATT&CK® ENTERPRISE THREAT MATRIX</h2>
-            <span class="panel-subtitle">Industry-standard adversarial tactic & technique mapping</span>
-          </div>
-        </div>
-        <span class="badge font-mono" id="mitre-active-badge">5 TECHNIQUES MONITORED</span>
-      </div>
-
-      <div class="mitre-grid">
-        <!-- T1046: Network Service Discovery -->
-        <div class="mitre-card" id="mitre-T1046">
-          <div class="mitre-top">
-            <span class="mitre-tactic">DISCOVERY</span>
-            <span class="mitre-id font-mono">T1046</span>
-          </div>
-          <div class="mitre-title">Network Service Discovery</div>
-          <div class="mitre-desc">TCP/UDP Port scanning & service probing</div>
-          <div class="mitre-footer">
-            <span class="mitre-hits font-mono" id="hit-T1046">0 HITS</span>
-            <span class="mitre-status font-mono">ACTIVE</span>
-          </div>
-        </div>
-
-        <!-- T1498: Network Denial of Service -->
-        <div class="mitre-card" id="mitre-T1498">
-          <div class="mitre-top">
-            <span class="mitre-tactic">IMPACT</span>
-            <span class="mitre-id font-mono">T1498.001</span>
-          </div>
-          <div class="mitre-title">Network Denial of Service</div>
-          <div class="mitre-desc">TCP SYN flood backlog queue exhaustion</div>
-          <div class="mitre-footer">
-            <span class="mitre-hits font-mono" id="hit-T1498">0 HITS</span>
-            <span class="mitre-status font-mono">ACTIVE</span>
-          </div>
-        </div>
-
-        <!-- T1557: Adversary-in-the-Middle -->
-        <div class="mitre-card" id="mitre-T1557">
-          <div class="mitre-top">
-            <span class="mitre-tactic">CREDENTIAL ACCESS</span>
-            <span class="mitre-id font-mono">T1557.002</span>
-          </div>
-          <div class="mitre-title">Adversary-in-the-Middle</div>
-          <div class="mitre-desc">ARP cache poisoning & gateway spoofing</div>
-          <div class="mitre-footer">
-            <span class="mitre-hits font-mono" id="hit-T1557">0 HITS</span>
-            <span class="mitre-status font-mono">ACTIVE</span>
-          </div>
-        </div>
-
-        <!-- T1071: DNS Tunneling -->
-        <div class="mitre-card" id="mitre-T1071">
-          <div class="mitre-top">
-            <span class="mitre-tactic">COMMAND & CONTROL</span>
-            <span class="mitre-id font-mono">T1071.004</span>
-          </div>
-          <div class="mitre-title">DNS Data Exfiltration</div>
-          <div class="mitre-desc">Covert tunneling over DNS queries</div>
-          <div class="mitre-footer">
-            <span class="mitre-hits font-mono" id="hit-T1071">0 HITS</span>
-            <span class="mitre-status font-mono">ACTIVE</span>
-          </div>
-        </div>
-
-        <!-- T1568: Dynamic Resolution DGA -->
-        <div class="mitre-card" id="mitre-T1568">
-          <div class="mitre-top">
-            <span class="mitre-tactic">DEFENSE EVASION</span>
-            <span class="mitre-id font-mono">T1568.002</span>
-          </div>
-          <div class="mitre-title">Domain Generation Algorithms</div>
-          <div class="mitre-desc">Botnet DGA probing & NXDOMAIN bursts</div>
-          <div class="mitre-footer">
-            <span class="mitre-hits font-mono" id="hit-T1568">0 HITS</span>
-            <span class="mitre-status font-mono">ACTIVE</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Secondary Analytics Row -->
-    <section class="analytics-grid">
-      <!-- Threat Vector Distribution -->
-      <div class="chart-card glass-panel">
-        <div class="card-header">
-          <div class="header-title-group">
-            <span class="panel-icon">📊</span>
-            <h2 class="panel-title">THREAT VECTOR DISTRIBUTION</h2>
-          </div>
-        </div>
-        <div class="chart-wrapper">
-          <canvas id="canvas-vectors" width="380" height="220"></canvas>
-        </div>
-      </div>
-
-      <!-- Severity Breakdown Donut -->
-      <div class="chart-card glass-panel">
-        <div class="card-header">
-          <div class="header-title-group">
-            <span class="panel-icon">🎯</span>
-            <h2 class="panel-title">SEVERITY RATIO</h2>
-          </div>
-        </div>
-        <div class="chart-wrapper donut-wrapper">
-          <canvas id="canvas-severity" width="220" height="220"></canvas>
-          <div class="donut-legend" id="donut-legend">
-            <div class="legend-item"><span class="dot bg-critical"></span> Critical</div>
-            <div class="legend-item"><span class="dot bg-high"></span> High</div>
-            <div class="legend-item"><span class="dot bg-medium"></span> Medium</div>
-            <div class="legend-item"><span class="dot bg-low"></span> Low</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Active IPS Firewall Quarantine Deck -->
-      <div class="chart-card glass-panel">
-        <div class="card-header">
-          <div class="header-title-group">
-            <span class="panel-icon">🛑</span>
-            <h2 class="panel-title">ACTIVE DEFENSE // FIREWALL QUARANTINE</h2>
-          </div>
-          <button id="btn-refresh-quarantine" class="btn btn-secondary btn-sm" title="Refresh Banned IPs">
-            <span>🔄 Refresh</span>
-          </button>
-        </div>
-        <div class="quarantine-container" id="quarantine-container">
-          <div class="empty-state">No IP addresses currently under IPS quarantine.</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Live Incident Stream & Triage Table -->
-    <section class="incident-section glass-panel">
-      <div class="incident-header">
-        <div class="section-title-group">
-          <span class="panel-icon">⚡</span>
-          <div>
-            <h2 class="panel-title">LIVE INCIDENT STREAM & FORENSICS LOG</h2>
-            <span class="panel-subtitle">Real-time packet inspection alerts streamed via Server-Sent Events (SSE)</span>
-          </div>
-          <span class="badge font-mono" id="incident-stream-badge">0 EVENTS</span>
-        </div>
-
-        <!-- Filter & Search Controls -->
-        <div class="incident-controls">
-          <div class="search-box">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    <!-- Main Rounded App Shell (Full-Width Responsive) -->
+    <div class="app-shell">
+      
+      <!-- Left Navigation Sidebar -->
+      <aside class="sidebar" id="main-sidebar">
+        <!-- Logo -->
+        <div class="sidebar-logo">
+          <div class="logo-icon-wrap">
+            <svg class="donezo-logo-icon" viewBox="0 0 32 32" fill="none">
+              <path d="M16 4C9.373 4 4 9.373 4 16c0 6.627 5.373 12 12 12s12-5.373 12-12c0-3.314-1.343-6.314-3.515-8.485" stroke="#165B33" stroke-width="3" stroke-linecap="round"/>
+              <path d="M16 10c-3.314 0-6 2.686-6 6s2.686 6 6 6 6-2.686 6-6c0-1.657-.672-3.157-1.757-4.243" stroke="#165B33" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="16" cy="16" r="2.5" fill="#165B33"/>
             </svg>
-            <input type="text" id="filter-search" placeholder="Search IP, vector, summary..." />
+          </div>
+          <span class="logo-text">AEGIS IDS</span>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="sidebar-nav">
+          <!-- Section: MONITORING -->
+          <div class="nav-section-label">MONITORING</div>
+          <ul class="nav-list">
+            <li class="nav-item active" id="item-dashboard">
+              <span class="active-indicator"></span>
+              <button class="nav-link-btn" id="nav-dashboard" type="button">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                </svg>
+                <span class="nav-label">Dashboard</span>
+              </button>
+            </li>
+
+            <li class="nav-item" id="item-incidents">
+              <button class="nav-link-btn" id="nav-incidents" type="button">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span class="nav-label">Threat Logs</span>
+                <span class="nav-badge" id="sidebar-badge-count" style="display: none;">0</span>
+              </button>
+            </li>
+
+            <li class="nav-item" id="item-mitre">
+              <button class="nav-link-btn" id="nav-mitre" type="button">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="20" x2="18" y2="10"/>
+                  <line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                <span class="nav-label">MITRE ATT&CK</span>
+              </button>
+            </li>
+
+            <li class="nav-item" id="item-quarantine">
+              <button class="nav-link-btn" id="nav-quarantine" type="button">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                <span class="nav-label">Quarantine</span>
+              </button>
+            </li>
+          </ul>
+
+          <!-- Section: SYSTEM -->
+          <div class="nav-section-label general-label">SYSTEM</div>
+          <ul class="nav-list">
+            <li class="nav-item" id="item-settings">
+              <button class="nav-link-btn" id="nav-settings" type="button">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span class="nav-label">Rule Tuner</span>
+              </button>
+            </li>
+
+            <li class="nav-item" id="item-help">
+              <button class="nav-link-btn" id="nav-help" type="button">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <span class="nav-label">Playbooks</span>
+              </button>
+            </li>
+
+            <li class="nav-item" id="item-clear">
+              <button class="nav-link-btn" id="nav-clear-db" type="button">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                <span class="nav-label">Clear Events</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Sidebar Bottom Card (Active IPS Shield) -->
+        <div class="sidebar-promo-card">
+          <div class="promo-bg-texture"></div>
+          <div class="promo-content">
+            <div class="promo-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V13H5V8.26l7-3.89v8.62z"/>
+              </svg>
+            </div>
+            <div class="promo-title">Active IPS Shield</div>
+            <div class="promo-desc">Interface: Default (All)</div>
+            <button class="promo-btn" id="btn-promo-download" type="button">Launch Test Attack</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+        
+        <!-- Top Navigation Bar (Shared across views) -->
+        <header class="top-navbar">
+          <!-- Left Breadcrumb / Live Stream Status -->
+          <div class="top-status-indicator">
+            <span class="pulse-indicator-dot"></span>
+            <span class="status-indicator-text" id="top-status-text">AEGIS Defense Engine Active // Real-Time Network Packet Inspection</span>
           </div>
 
-          <select id="filter-severity" class="custom-select">
-            <option value="">All Severities</option>
-            <option value="CRITICAL">Critical Only</option>
-            <option value="HIGH">High Only</option>
-            <option value="MEDIUM">Medium Only</option>
-            <option value="LOW">Low Only</option>
-          </select>
+          <!-- Top Right Action Controls & User Profile -->
+          <div class="top-actions">
+            <!-- Mail / Report Export Button -->
+            <button class="round-icon-btn" id="btn-top-mail" title="Export Security Report">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </button>
 
-          <select id="filter-type" class="custom-select">
-            <option value="">All Threat Vectors</option>
-            <option value="TCP_PORT_SCAN">TCP Port Scan</option>
-            <option value="UDP_SCAN">UDP Scan</option>
-            <option value="SYN_FLOOD">SYN Flood</option>
-            <option value="ARP_SPOOF">ARP Spoof</option>
-            <option value="DNS_ANOMALY">DNS Anomaly</option>
-          </select>
+            <!-- Bell Notification / Alert Sound Toggle -->
+            <button class="round-icon-btn" id="btn-top-bell" title="Alert Notifications & Sound">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </button>
 
-          <button id="btn-pause-stream" class="btn btn-secondary btn-sm" title="Toggle Auto-Scroll">
-            <span>⏸️ Pause</span>
-          </button>
-        </div>
-      </div>
+            <!-- User Profile Pill -->
+            <div class="user-profile-pill" id="user-profile-pill">
+              <div class="user-avatar-wrap">
+                <svg viewBox="0 0 36 36" width="36" height="36" fill="none">
+                  <circle cx="18" cy="18" r="18" fill="#D1FAE5"/>
+                  <circle cx="18" cy="15" r="6" fill="#165B33"/>
+                  <path d="M6 31c0-6 5.373-10 12-10s12 4 12 10" fill="#165B33"/>
+                  <circle cx="27" cy="9" r="3.5" fill="#10B981"/>
+                </svg>
+              </div>
+              <div class="user-meta">
+                <span class="user-name">SOC Analyst</span>
+                <span class="user-email">analyst@aegis-defense.internal</span>
+              </div>
+            </div>
+          </div>
+        </header>
 
-      <!-- Events Table -->
-      <div class="table-container">
-        <table class="incident-table" id="incident-table">
-          <thead>
-            <tr>
-              <th style="width: 140px;">TIMESTAMP</th>
-              <th style="width: 110px;">SEVERITY</th>
-              <th style="width: 160px;">THREAT VECTOR</th>
-              <th style="width: 120px;">MITRE ATT&CK</th>
-              <th style="width: 140px;">ATTACKER (SRC)</th>
-              <th style="width: 140px;">TARGET (DST)</th>
-              <th>INCIDENT DESCRIPTION</th>
-              <th style="width: 140px; text-align: center;">ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody id="incident-tbody">
-            <tr class="empty-row">
-              <td colspan="8">
-                <div class="table-empty">
-                  <div class="pulse-radar-loader"></div>
-                  <div class="empty-text">Listening for security events on sensor interface...</div>
-                  <div class="empty-hint">Click <strong>"Attack Launcher"</strong> above to replay attack scenarios.</div>
+        <!-- ==================================================================
+             VIEW 1: DASHBOARD OVERVIEW (Default Active View)
+             ================================================================== -->
+        <div id="view-dashboard" class="dashboard-view-content">
+          
+          <!-- Dashboard Heading & Action Buttons -->
+          <section class="dashboard-header-row">
+            <div class="header-heading-wrap">
+              <h1 class="dashboard-title">Security Operations Center</h1>
+              <p class="dashboard-subtitle">
+                Real-time network traffic analysis, signature inspection & active defense.
+                <span class="aegis-tag-subtle">AEGIS // CYBER THREAT DETECTION</span>
+              </p>
+            </div>
+
+            <div class="header-action-buttons">
+              <!-- + Launch Scenario Button -->
+              <button class="btn-primary-dark" id="btn-add-project" type="button">
+                <span class="plus-icon">+</span>
+                <span>Launch Scenario</span>
+              </button>
+
+              <!-- Export CSV Button -->
+              <button class="btn-secondary-white" id="btn-import-data" type="button">
+                <span>Export CSV</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- Four Statistic Cards Grid -->
+          <section class="stat-cards-grid">
+            <!-- Card 1: Total Threats Detected (Forest Green Accent) -->
+            <div class="stat-card stat-card-green" id="card-total-projects">
+              <div class="stat-card-top">
+                <span class="stat-card-label">Total Threats Detected</span>
+                <button class="stat-arrow-btn" id="btn-stat-goto-logs" aria-label="Go to Logs" type="button" title="View in Threat Logs">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="7" y1="17" x2="17" y2="7"/>
+                    <polyline points="7 7 17 7 17 17"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="stat-card-value" id="stat-total-count">0</div>
+              <div class="stat-card-footer">
+                <span class="stat-trend-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                    <polyline points="17 6 23 6 23 12"/>
+                  </svg>
+                </span>
+                <span class="stat-trend-text">Sliding Window: Active</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Critical Alerts -->
+            <div class="stat-card stat-card-white" id="card-ended-projects">
+              <div class="stat-card-top">
+                <span class="stat-card-label">Critical Alerts</span>
+                <button class="stat-arrow-btn stat-arrow-grey" id="btn-stat-goto-critical" aria-label="View Critical" type="button" title="Filter Critical Logs">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="7" y1="17" x2="17" y2="7"/>
+                    <polyline points="7 7 17 7 17 17"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="stat-card-value text-dark" id="stat-ended-count">0</div>
+              <div class="stat-card-footer">
+                <span class="stat-trend-box-grey">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                    <polyline points="17 6 23 6 23 12"/>
+                  </svg>
+                </span>
+                <span class="stat-trend-text-grey">SYN Flood & Spoofing</span>
+              </div>
+            </div>
+
+            <!-- Card 3: High Severity -->
+            <div class="stat-card stat-card-white" id="card-running-projects">
+              <div class="stat-card-top">
+                <span class="stat-card-label">High Severity</span>
+                <button class="stat-arrow-btn stat-arrow-grey" id="btn-stat-goto-high" aria-label="View High Severity" type="button" title="Filter High Logs">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="7" y1="17" x2="17" y2="7"/>
+                    <polyline points="7 7 17 7 17 17"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="stat-card-value text-dark" id="stat-running-count">0</div>
+              <div class="stat-card-footer">
+                <span class="stat-trend-box-grey">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                    <polyline points="17 6 23 6 23 12"/>
+                  </svg>
+                </span>
+                <span class="stat-trend-text-grey">Port Scans & Anomalies</span>
+              </div>
+            </div>
+
+            <!-- Card 4: Quarantined Hosts -->
+            <div class="stat-card stat-card-white" id="card-pending-projects">
+              <div class="stat-card-top">
+                <span class="stat-card-label">Quarantined Hosts</span>
+                <button class="stat-arrow-btn stat-arrow-grey" id="btn-stat-goto-quarantine" aria-label="View Quarantine" type="button" title="Open Quarantine List">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="7" y1="17" x2="17" y2="7"/>
+                    <polyline points="7 7 17 7 17 17"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="stat-card-value text-dark" id="stat-pending-count">0</div>
+              <div class="stat-card-footer">
+                <span class="stat-meta-plain">Firewall Drop Active</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Middle Section: Priority Threat Alert Banner (Spacious & Clean) -->
+          <section class="priority-alert-section">
+            <div class="card-panel panel-reminders-full">
+              <div class="panel-header-simple">
+                <div class="priority-badge-row">
+                  <span class="badge-critical-small">CRITICAL THREAT PRIORITY</span>
+                  <span class="panel-subtitle-small">Immediate Mitigation Recommended</span>
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+                <button class="btn-pill-small" id="btn-dash-view-logs" type="button">View All Incident Logs &rarr;</button>
+              </div>
+              <div class="reminder-content">
+                <div>
+                  <h3 class="reminder-heading" id="reminder-meeting-title">High-Rate TCP SYN Flood Attack Detected</h3>
+                  <p class="reminder-time" id="reminder-meeting-time">192.168.1.200 → 192.168.1.50 : 80 | Arrival Rate: 450 SYN pkts/sec</p>
+                  <div class="threat-meta-chips">
+                    <span class="chip-item">MITRE Technique: T1498.001</span>
+                    <span class="chip-item">TCP Backlog Queue Saturation: 98.4%</span>
+                    <span class="chip-item">Target: Web Server Port 80</span>
+                    <span class="chip-item">Detector: SynFloodDetector</span>
+                  </div>
+                </div>
+                <div class="priority-action-row">
+                  <button class="btn-start-meeting btn-inline" id="btn-start-meeting" type="button">
+                    <svg class="meeting-cam-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <span>Quarantine Attacker IP (192.168.1.200)</span>
+                  </button>
+                  <button class="btn-secondary-white" id="btn-inspect-priority" type="button">Inspect Forensics</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ================================================================
+               DASHBOARD BOTTOM SECTION (Donezo 3-Column Deck)
+               ================================================================ -->
+          <section class="dashboard-bottom-grid">
+            
+            <!-- Column 1: Top Threat Actors (Matches Donezo Team Collaboration) -->
+            <div class="card-panel panel-threat-actors">
+              <div class="panel-header-simple">
+                <div>
+                  <h3 class="panel-title-text">Top Threat Actors</h3>
+                  <span class="panel-subtitle-small">Offending source hosts ranked by hit volume</span>
+                </div>
+                <button class="btn-pill-small" id="btn-quick-quarantine-modal" type="button">+ Quarantine IP</button>
+              </div>
+
+              <div class="threat-actors-list" id="threat-actors-list">
+                <!-- Attacker Row 1 -->
+                <div class="actor-row" onclick="window.inspectForensics('2')">
+                  <div class="actor-avatar actor-avatar-red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="8" x2="12" y2="12"/>
+                      <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                  </div>
+                  <div class="actor-info">
+                    <div class="actor-ip font-mono">192.168.1.200</div>
+                    <div class="actor-vector">High-Rate TCP SYN Flood (450 pkts/s)</div>
+                  </div>
+                  <div class="actor-meta">
+                    <span class="actor-hits font-mono">450 hits</span>
+                    <span class="member-status-pill pill-critical">CRITICAL</span>
+                  </div>
+                </div>
+
+                <!-- Attacker Row 2 -->
+                <div class="actor-row" onclick="window.inspectForensics('1')">
+                  <div class="actor-avatar actor-avatar-orange">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                  </div>
+                  <div class="actor-info">
+                    <div class="actor-ip font-mono">192.168.1.100</div>
+                    <div class="actor-vector">Stealth Nmap TCP Port Scan</div>
+                  </div>
+                  <div class="actor-meta">
+                    <span class="actor-hits font-mono">120 hits</span>
+                    <span class="member-status-pill pill-high">HIGH</span>
+                  </div>
+                </div>
+
+                <!-- Attacker Row 3 -->
+                <div class="actor-row" onclick="window.inspectForensics('3')">
+                  <div class="actor-avatar actor-avatar-amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                      <circle cx="12" cy="12" r="4"/>
+                      <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/>
+                    </svg>
+                  </div>
+                  <div class="actor-info">
+                    <div class="actor-ip font-mono">192.168.1.150</div>
+                    <div class="actor-vector">ARP Cache Poisoning (Gateway MITM)</div>
+                  </div>
+                  <div class="actor-meta">
+                    <span class="actor-hits font-mono">85 hits</span>
+                    <span class="member-status-pill pill-high">HIGH</span>
+                  </div>
+                </div>
+
+                <!-- Attacker Row 4 -->
+                <div class="actor-row" onclick="window.inspectForensics('4')">
+                  <div class="actor-avatar actor-avatar-blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                      <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+                      <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+                      <line x1="6" y1="6" x2="6.01" y2="6"/>
+                      <line x1="6" y1="18" x2="6.01" y2="18"/>
+                    </svg>
+                  </div>
+                  <div class="actor-info">
+                    <div class="actor-ip font-mono">10.0.0.99</div>
+                    <div class="actor-vector">Suspicious DNS Tunneling Query</div>
+                  </div>
+                  <div class="actor-meta">
+                    <span class="actor-hits font-mono">42 hits</span>
+                    <span class="member-status-pill pill-medium">MEDIUM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 2: MITRE ATT&CK Matrix Distribution -->
+            <div class="card-panel panel-mitre-dist">
+              <div class="panel-header-simple">
+                <div>
+                  <h3 class="panel-title-text">MITRE ATT&CK Breakdown</h3>
+                  <span class="panel-subtitle-small">Tactical framework detection coverage</span>
+                </div>
+                <button class="btn-pill-small" id="btn-dash-mitre-modal" type="button">Explore Matrix &rarr;</button>
+              </div>
+
+              <div class="mitre-bars-container" id="mitre-bars-container">
+                <!-- Technique 1: T1498.001 -->
+                <div class="mitre-bar-item">
+                  <div class="mitre-bar-header">
+                    <div class="mitre-tech-title">
+                      <span class="mitre-tech-badge">T1498.001</span>
+                      <span class="mitre-tech-name">Direct Network Flood</span>
+                    </div>
+                    <span class="mitre-count-val font-mono">45%</span>
+                  </div>
+                  <div class="mitre-progress-track">
+                    <div class="mitre-progress-fill fill-dark-green" style="width: 45%;"></div>
+                  </div>
+                </div>
+
+                <!-- Technique 2: T1046 -->
+                <div class="mitre-bar-item">
+                  <div class="mitre-bar-header">
+                    <div class="mitre-tech-title">
+                      <span class="mitre-tech-badge">T1046</span>
+                      <span class="mitre-tech-name">Network Service Discovery</span>
+                    </div>
+                    <span class="mitre-count-val font-mono">30%</span>
+                  </div>
+                  <div class="mitre-progress-track">
+                    <div class="mitre-progress-fill fill-med-green" style="width: 30%;"></div>
+                  </div>
+                </div>
+
+                <!-- Technique 3: T1557.002 -->
+                <div class="mitre-bar-item">
+                  <div class="mitre-bar-header">
+                    <div class="mitre-tech-title">
+                      <span class="mitre-tech-badge">T1557.002</span>
+                      <span class="mitre-tech-name">Adversary-in-the-Middle</span>
+                    </div>
+                    <span class="mitre-count-val font-mono">15%</span>
+                  </div>
+                  <div class="mitre-progress-track">
+                    <div class="mitre-progress-fill fill-light-green" style="width: 15%;"></div>
+                  </div>
+                </div>
+
+                <!-- Technique 4: T1071.004 -->
+                <div class="mitre-bar-item">
+                  <div class="mitre-bar-header">
+                    <div class="mitre-tech-title">
+                      <span class="mitre-tech-badge">T1071.004</span>
+                      <span class="mitre-tech-name">DNS Application Layer Protocol</span>
+                    </div>
+                    <span class="mitre-count-val font-mono">10%</span>
+                  </div>
+                  <div class="mitre-progress-track">
+                    <div class="mitre-progress-fill fill-accent-mint" style="width: 10%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mitre-dist-legend">
+                <span class="legend-dot-item"><span class="legend-dot dot-impact"></span> Impact</span>
+                <span class="legend-dot-item"><span class="legend-dot dot-discovery"></span> Discovery</span>
+                <span class="legend-dot-item"><span class="legend-dot dot-mitm"></span> MitM</span>
+                <span class="legend-dot-item"><span class="legend-dot dot-c2"></span> C2</span>
+              </div>
+            </div>
+
+            <!-- Column 3: Sensor Node Telemetry (Donezo Dark Green Card) -->
+            <div class="card-panel panel-sensor-telemetry">
+              <div class="sensor-card-texture"></div>
+              <div class="sensor-card-content">
+                <div class="sensor-card-header">
+                  <span class="sensor-card-title">Sensor Node Telemetry</span>
+                  <span class="sensor-status-dot-pulse" title="Promiscuous Sniffer Active"></span>
+                </div>
+                
+                <div class="sensor-time-display">
+                  <div class="sensor-big-metric" id="sensor-metric-val">1,420</div>
+                  <div class="sensor-metric-unit">pkts/sec inspected</div>
+                </div>
+
+                <div class="sensor-node-specs">
+                  <div class="spec-row">
+                    <span class="spec-label">Interface</span>
+                    <span class="spec-value font-mono" id="sensor-interface-val">Default (All)</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">Storage Engine</span>
+                    <span class="spec-value font-mono">SQLite 3 (WAL)</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">Inspection Window</span>
+                    <span class="spec-value font-mono">60s Sliding</span>
+                  </div>
+                </div>
+
+                <div class="sensor-card-actions">
+                  <button class="sensor-ctrl-btn btn-white-round" id="btn-sensor-pause" type="button" title="Pause / Resume Live Feed">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                      <rect x="6" y="4" width="4" height="16"/>
+                      <rect x="14" y="4" width="4" height="16"/>
+                    </svg>
+                  </button>
+                  <button class="sensor-ctrl-btn btn-red-round" id="btn-sensor-simulate" type="button" title="Simulate Packet Burst">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                      <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                  </button>
+                  <span class="sensor-actions-hint">Stream Controls</span>
+                </div>
+              </div>
+            </div>
+
+          </section>
+
+        </div>
+
+        <!-- ==================================================================
+             VIEW 2: DEDICATED THREAT INCIDENT LOGS (Separate Page View)
+             ================================================================== -->
+        <div id="view-logs" class="dashboard-view-content hidden">
+          
+          <!-- Logs Header Row -->
+          <section class="dashboard-header-row">
+            <div class="header-heading-wrap">
+              <h1 class="dashboard-title">Live Threat Incident Logs</h1>
+              <p class="dashboard-subtitle">
+                Full telemetry inspection stream, protocol decode & SQLite persistence.
+                <span class="aegis-tag-subtle">LOGS // SQLite BACKED</span>
+              </p>
+            </div>
+
+            <div class="header-action-buttons">
+              <button class="btn-primary-dark" id="btn-logs-simulate" type="button">
+                <span class="plus-icon">+</span>
+                <span>Simulate Attack</span>
+              </button>
+              <button class="btn-secondary-white" id="btn-logs-export" type="button">
+                <span>Export CSV</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- Incident Logs Dedicated Card Panel -->
+          <section class="logs-full-section">
+            <div class="card-panel panel-threat-logs-full">
+              
+              <!-- Logs Toolbar: Filter Pills & Search Input -->
+              <div class="logs-toolbar-row">
+                <div class="filter-pills-group">
+                  <span class="filter-label">Filter Severity:</span>
+                  <button class="filter-btn active" data-filter="ALL" type="button">ALL</button>
+                  <button class="filter-btn" data-filter="CRITICAL" type="button">CRITICAL</button>
+                  <button class="filter-btn" data-filter="HIGH" type="button">HIGH</button>
+                  <button class="filter-btn" data-filter="MEDIUM" type="button">MEDIUM</button>
+                  <button class="filter-btn" data-filter="LOW" type="button">LOW</button>
+                </div>
+
+                <div class="logs-search-wrap">
+                  <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <input type="text" id="logs-filter-input" class="search-input" placeholder="Filter by IP, signature, or MITRE ID..." />
+                </div>
+              </div>
+
+              <!-- Dedicated Full-Height Threat Log Table -->
+              <div class="threat-log-table-wrapper-full">
+                <table class="threat-log-table">
+                  <thead>
+                    <tr>
+                      <th>TIMESTAMP</th>
+                      <th>SOURCE IP</th>
+                      <th>TARGET IP</th>
+                      <th>ATTACK SIGNATURE</th>
+                      <th>SEVERITY</th>
+                      <th>ACTION</th>
+                    </tr>
+                  </thead>
+                  <tbody id="team-members-list">
+                    <!-- Event 1 -->
+                    <tr class="threat-log-row" onclick="window.inspectForensics('1')">
+                      <td class="font-mono text-muted-small">22:52:14</td>
+                      <td class="font-mono text-dark-bold">192.168.1.100</td>
+                      <td class="font-mono text-muted-small">192.168.1.50</td>
+                      <td><strong class="task-highlight">Nmap Stealth TCP Port Scan</strong> (T1046)</td>
+                      <td><span class="member-status-pill pill-high">HIGH</span></td>
+                      <td><button class="btn-inspect-pill" type="button">Inspect</button></td>
+                    </tr>
+
+                    <!-- Event 2 -->
+                    <tr class="threat-log-row" onclick="window.inspectForensics('2')">
+                      <td class="font-mono text-muted-small">22:52:15</td>
+                      <td class="font-mono text-dark-bold">192.168.1.200</td>
+                      <td class="font-mono text-muted-small">192.168.1.50:80</td>
+                      <td><strong class="task-highlight">High-Velocity TCP SYN Flood</strong> (T1498.001)</td>
+                      <td><span class="member-status-pill pill-critical">CRITICAL</span></td>
+                      <td><button class="btn-inspect-pill" type="button">Inspect</button></td>
+                    </tr>
+
+                    <!-- Event 3 -->
+                    <tr class="threat-log-row" onclick="window.inspectForensics('3')">
+                      <td class="font-mono text-muted-small">22:52:16</td>
+                      <td class="font-mono text-dark-bold">192.168.1.150</td>
+                      <td class="font-mono text-muted-small">192.168.1.1</td>
+                      <td><strong class="task-highlight">ARP Cache Poisoning (MITM)</strong> (T1557.002)</td>
+                      <td><span class="member-status-pill pill-critical">CRITICAL</span></td>
+                      <td><button class="btn-inspect-pill" type="button">Inspect</button></td>
+                    </tr>
+
+                    <!-- Event 4 -->
+                    <tr class="threat-log-row" onclick="window.inspectForensics('4')">
+                      <td class="font-mono text-muted-small">22:52:17</td>
+                      <td class="font-mono text-dark-bold">192.168.1.160</td>
+                      <td class="font-mono text-muted-small">8.8.8.8:53</td>
+                      <td><strong class="task-highlight">Covert DNS Data Tunneling</strong> (T1071.004)</td>
+                      <td><span class="member-status-pill pill-high">HIGH</span></td>
+                      <td><button class="btn-inspect-pill" type="button">Inspect</button></td>
+                    </tr>
+
+                    <!-- Event 5 -->
+                    <tr class="threat-log-row" onclick="window.inspectForensics('5')">
+                      <td class="font-mono text-muted-small">22:52:18</td>
+                      <td class="font-mono text-dark-bold">192.168.1.175</td>
+                      <td class="font-mono text-muted-small">192.168.1.50</td>
+                      <td><strong class="task-highlight">UDP Port Sweep Scan</strong> (T1046)</td>
+                      <td><span class="member-status-pill pill-medium">MEDIUM</span></td>
+                      <td><button class="btn-inspect-pill" type="button">Inspect</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+      </main>
+
+    </div>
 
   </div>
 
-  <!-- Multi-Vector Attack Scenario Launcher Modal -->
+  <!-- Multi-Vector Threat Scenario Launcher Modal -->
   <div class="modal-backdrop hidden" id="scenario-modal">
-    <div class="modal-card glass-panel scenario-modal-card">
+    <div class="modal-card donezo-modal-card">
       <div class="modal-header">
         <div class="modal-title-wrap">
-          <span class="modal-icon">🚀</span>
-          <div>
-            <h3 class="modal-title">MULTI-VECTOR ATTACK SIMULATION LAUNCHER</h3>
-            <span class="modal-subtitle">Inject pre-recorded or synthetic adversarial traffic through the complete IDS pipeline</span>
-          </div>
+          <h3 class="modal-title">Multi-Vector Threat Scenario Launcher</h3>
+          <span class="modal-subtitle">Inject pre-recorded adversarial attack traffic through the IDS pipeline</span>
         </div>
-        <button class="modal-close" id="btn-close-scenario">&times;</button>
+        <button class="modal-close" id="btn-close-scenario" type="button">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="scenario-grid">
-          <!-- Scenario 1: Port Scan -->
-          <div class="scenario-card">
-            <div class="scenario-badge badge-high font-mono">RECONNAISSANCE</div>
-            <h4 class="scenario-title">1. Nmap Stealth TCP Port Scan</h4>
-            <p class="scenario-desc">Probes 15 distinct TCP destination ports (21, 22, 80, 443, 3389, 8080) within 2 seconds using unsolicited TCP SYN frames.</p>
-            <div class="scenario-meta">
-              <span><strong>Vector:</strong> TCP_PORT_SCAN</span>
-              <span><strong>MITRE:</strong> T1046</span>
-            </div>
-            <button class="btn btn-primary btn-sm btn-launch-scenario" data-scenario="port_scan">
-              <span>Launch Recon Scan</span>
-            </button>
+        <div class="scenario-grid-donezo">
+          <div class="scenario-item-card" data-scenario="port_scan">
+            <span class="sc-badge badge-green">T1046</span>
+            <h4>1. Nmap Stealth TCP Port Scan</h4>
+            <p>Probes 15 distinct TCP destination ports within 2 seconds using unsolicited SYN frames.</p>
+            <button class="btn-scenario-action" type="button">Launch Recon Scan</button>
           </div>
 
-          <!-- Scenario 2: SYN Flood -->
-          <div class="scenario-card">
-            <div class="scenario-badge badge-critical font-mono">DENIAL OF SERVICE</div>
-            <h4 class="scenario-title">2. High-Rate TCP SYN Flood</h4>
-            <p class="scenario-desc">Blasts 200 high-velocity TCP SYN frames against HTTP port 80 to saturate and exhaust the kernel TCP backlog queue.</p>
-            <div class="scenario-meta">
-              <span><strong>Vector:</strong> TCP_SYN_FLOOD</span>
-              <span><strong>MITRE:</strong> T1498.001</span>
-            </div>
-            <button class="btn btn-primary btn-sm btn-launch-scenario" data-scenario="syn_flood">
-              <span>Launch SYN Flood</span>
-            </button>
+          <div class="scenario-item-card" data-scenario="syn_flood">
+            <span class="sc-badge badge-critical">T1498.001</span>
+            <h4>2. High-Rate TCP SYN Flood</h4>
+            <p>Blasts 200 high-velocity TCP SYN frames against web port 80 to saturate backlog queue.</p>
+            <button class="btn-scenario-action" type="button">Launch SYN Flood</button>
           </div>
 
-          <!-- Scenario 3: ARP Spoofing -->
-          <div class="scenario-card">
-            <div class="scenario-badge badge-critical font-mono">MAN-IN-THE-MIDDLE</div>
-            <h4 class="scenario-title">3. ARP Cache Poisoning (MITM)</h4>
-            <p class="scenario-desc">Injects gratuitous ARP is-at replies associating the default gateway IP (192.168.1.1) with an unauthorized attacker MAC address.</p>
-            <div class="scenario-meta">
-              <span><strong>Vector:</strong> ARP_SPOOFING</span>
-              <span><strong>MITRE:</strong> T1557.002</span>
-            </div>
-            <button class="btn btn-primary btn-sm btn-launch-scenario" data-scenario="arp_spoof">
-              <span>Launch ARP Poison</span>
-            </button>
+          <div class="scenario-item-card" data-scenario="arp_spoof">
+            <span class="sc-badge badge-critical">T1557.002</span>
+            <h4>3. ARP Cache Poisoning (MITM)</h4>
+            <p>Injects gratuitous ARP is-at replies associating gateway IP with an unauthorized MAC.</p>
+            <button class="btn-scenario-action" type="button">Launch ARP Poison</button>
           </div>
 
-          <!-- Scenario 4: DNS Tunneling -->
-          <div class="scenario-card">
-            <div class="scenario-badge badge-high font-mono">EXFILTRATION</div>
-            <h4 class="scenario-title">4. Covert DNS Data Tunneling</h4>
-            <p class="scenario-desc">Encodes simulated credential payload into deep DNS subdomains (>50 characters) and triggers bursts of NXDOMAIN responses.</p>
-            <div class="scenario-meta">
-              <span><strong>Vector:</strong> DNS_TUNNELING</span>
-              <span><strong>MITRE:</strong> T1071.004</span>
-            </div>
-            <button class="btn btn-primary btn-sm btn-launch-scenario" data-scenario="dns_anomaly">
-              <span>Launch DNS Exfil</span>
-            </button>
+          <div class="scenario-item-card" data-scenario="dns_anomaly">
+            <span class="sc-badge badge-green">T1071.004</span>
+            <h4>4. Covert DNS Data Tunneling</h4>
+            <p>Encodes simulated exfiltration payload into deep DNS subdomains (>50 characters).</p>
+            <button class="btn-scenario-action" type="button">Launch DNS Exfil</button>
           </div>
 
-          <!-- Scenario 5: UDP Scan -->
-          <div class="scenario-card">
-            <div class="scenario-badge badge-low font-mono">SERVICE ENUMERATION</div>
-            <h4 class="scenario-title">5. UDP Service Probing</h4>
-            <p class="scenario-desc">Probes 10 UDP services (DNS, DHCP, TFTP, NTP, SNMP, IKE) across randomized source ports.</p>
-            <div class="scenario-meta">
-              <span><strong>Vector:</strong> UDP_PORT_SCAN</span>
-              <span><strong>MITRE:</strong> T1046</span>
-            </div>
-            <button class="btn btn-primary btn-sm btn-launch-scenario" data-scenario="udp_scan">
-              <span>Launch UDP Scan</span>
-            </button>
-          </div>
-
-          <!-- Scenario 6: Full Multi-Vector APT -->
-          <div class="scenario-card scenario-card-featured">
-            <div class="scenario-badge badge-critical font-mono">FULL APT CAMPAIGN</div>
-            <h4 class="scenario-title">6. Multi-Vector Attack Campaign</h4>
-            <p class="scenario-desc">Executes all 5 attack vectors sequentially in a coordinated multi-stage cyber campaign (265 packets).</p>
-            <div class="scenario-meta">
-              <span><strong>Vectors:</strong> Port + UDP + SYN + ARP + DNS</span>
-              <span><strong>Packets:</strong> 265 frames</span>
-            </div>
-            <button class="btn btn-primary glow-btn btn-launch-scenario" data-scenario="multi_vector">
-              <span>Launch Full APT Attack</span>
-            </button>
+          <div class="scenario-item-card sc-featured" data-scenario="multi_vector">
+            <span class="sc-badge badge-green">FULL CAMPAIGN</span>
+            <h4>5. Multi-Vector Attack Campaign</h4>
+            <p>Executes all 5 attack vectors sequentially in a coordinated multi-stage cyber campaign (265 packets).</p>
+            <button class="btn-scenario-action btn-green-full" type="button">Launch Full APT Attack</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Deep Forensic Inspection Drawer / Modal -->
+  <!-- Deep Packet Forensics Inspection Drawer / Modal -->
   <div class="modal-backdrop hidden" id="forensics-modal">
-    <div class="modal-card glass-panel">
+    <div class="modal-card donezo-modal-card">
       <div class="modal-header">
         <div class="modal-title-wrap">
-          <span class="modal-icon">🔬</span>
-          <div>
-            <h3 class="modal-title" id="forensic-title">DEEP PACKET FORENSICS</h3>
-            <span class="modal-subtitle">Raw packet evidence, protocol decode & MITRE correlation</span>
-          </div>
+          <h3 class="modal-title" id="forensic-title">Deep Packet Forensics & Telemetry</h3>
+          <span class="modal-subtitle">Raw packet inspection data and protocol decode</span>
         </div>
-        <button class="modal-close" id="btn-close-forensic">&times;</button>
+        <button class="modal-close" id="btn-close-forensic" type="button">&times;</button>
       </div>
       <div class="modal-body" id="forensic-body">
         <!-- Injected via JavaScript -->
@@ -578,86 +747,76 @@
     </div>
   </div>
 
-  <!-- Rule Tuner Modal -->
+  <!-- Detection Rule Tuner Modal -->
   <div class="modal-backdrop hidden" id="config-modal">
-    <div class="modal-card glass-panel config-modal-card">
+    <div class="modal-card donezo-modal-card">
       <div class="modal-header">
         <div class="modal-title-wrap">
-          <span class="modal-icon">⚙️</span>
-          <div>
-            <h3 class="modal-title">IDS DETECTION RULE TUNER</h3>
-            <span class="modal-subtitle">Modify sliding-window thresholds and alert sensitivity in real time</span>
-          </div>
+          <h3 class="modal-title">Detection Rule Tuner</h3>
+          <span class="modal-subtitle">Modify sliding-window thresholds and alert sensitivity</span>
         </div>
-        <button class="modal-close" id="btn-close-config">&times;</button>
+        <button class="modal-close" id="btn-close-config" type="button">&times;</button>
       </div>
       <div class="modal-body">
-        <form id="config-form" class="config-grid">
-          <!-- Port Scan -->
-          <div class="config-section">
-            <h4 class="config-heading">TCP Port Scan Detector</h4>
-            <div class="form-row">
-              <label>Unique Ports Threshold:</label>
-              <input type="number" id="cfg-ps-ports" min="1" max="1000" class="input-number" />
-            </div>
-            <div class="form-row">
-              <label>Time Window (seconds):</label>
-              <input type="number" id="cfg-ps-window" min="1" max="60" class="input-number" />
-            </div>
+        <form id="config-form" class="config-grid-donezo">
+          <div class="form-field-group">
+            <label>TCP Port Scan Threshold (Unique Ports):</label>
+            <input type="number" id="cfg-ps-ports" class="input-donezo" value="15" />
           </div>
-
-          <!-- UDP Scan -->
-          <div class="config-section">
-            <h4 class="config-heading">UDP Scan Detector</h4>
-            <div class="form-row">
-              <label>Unique Ports Threshold:</label>
-              <input type="number" id="cfg-udp-ports" min="1" max="1000" class="input-number" />
-            </div>
-            <div class="form-row">
-              <label>Time Window (seconds):</label>
-              <input type="number" id="cfg-udp-window" min="1" max="60" class="input-number" />
-            </div>
+          <div class="form-field-group">
+            <label>UDP Scan Threshold (Unique Ports):</label>
+            <input type="number" id="cfg-udp-ports" class="input-donezo" value="10" />
           </div>
-
-          <!-- SYN Flood -->
-          <div class="config-section">
-            <h4 class="config-heading">TCP SYN Flood Detector</h4>
-            <div class="form-row">
-              <label>SYN Packets Threshold:</label>
-              <input type="number" id="cfg-syn-thresh" min="10" max="10000" class="input-number" />
-            </div>
-            <div class="form-row">
-              <label>Time Window (seconds):</label>
-              <input type="number" id="cfg-syn-window" min="1" max="60" class="input-number" />
-            </div>
+          <div class="form-field-group">
+            <label>SYN Flood Threshold (Packets/Sec):</label>
+            <input type="number" id="cfg-syn-thresh" class="input-donezo" value="200" />
           </div>
-
-          <!-- Alert Triage -->
-          <div class="config-section">
-            <h4 class="config-heading">Alert Triage & Rate Limiter</h4>
-            <div class="form-row">
-              <label>Min Severity:</label>
-              <select id="cfg-alert-min" class="custom-select">
-                <option value="LOW">LOW</option>
-                <option value="MEDIUM">MEDIUM</option>
-                <option value="HIGH">HIGH</option>
-                <option value="CRITICAL">CRITICAL</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <label>Deduplication Window (s):</label>
-              <input type="number" step="0.5" id="cfg-alert-dedup" class="input-number" />
-            </div>
-            <div class="form-row">
-              <label>Max Alerts / Minute:</label>
-              <input type="number" id="cfg-alert-rate" class="input-number" />
-            </div>
+          <div class="form-field-group">
+            <label>Min Alert Severity:</label>
+            <select id="cfg-alert-min" class="select-donezo">
+              <option value="LOW">LOW</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="HIGH">HIGH</option>
+              <option value="CRITICAL">CRITICAL</option>
+            </select>
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="btn-cancel-config">Cancel</button>
-        <button type="button" class="btn btn-primary" id="btn-save-config">Save & Apply Rules</button>
+        <button type="button" class="btn-secondary-white" id="btn-cancel-config">Cancel</button>
+        <button type="button" class="btn-primary-dark" id="btn-save-config">Save Rules</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MITRE ATT&CK Matrix Modal -->
+  <div class="modal-backdrop hidden" id="mitre-modal">
+    <div class="modal-card donezo-modal-card" style="max-width: 760px;">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <h3 class="modal-title">MITRE ATT&CK Enterprise Matrix Mapping</h3>
+          <span class="modal-subtitle">Correlated Adversary Tactics, Techniques & Procedures (TTPs)</span>
+        </div>
+        <button class="modal-close" id="btn-close-mitre" type="button">&times;</button>
+      </div>
+      <div class="modal-body" id="mitre-body">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Quarantine Management Modal -->
+  <div class="modal-backdrop hidden" id="quarantine-modal">
+    <div class="modal-card donezo-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <h3 class="modal-title">Active Quarantine / Firewall Drop List</h3>
+          <span class="modal-subtitle">Isolated attacking hosts managed by Active IPS</span>
+        </div>
+        <button class="modal-close" id="btn-close-quarantine" type="button">&times;</button>
+      </div>
+      <div class="modal-body" id="quarantine-body">
+        <!-- Injected via JavaScript -->
       </div>
     </div>
   </div>
@@ -665,7 +824,7 @@
   <!-- Toast Notification System -->
   <div class="toast-container" id="toast-container"></div>
 
-  <!-- SOC Application Logic -->
-  <script src="/js/app.js?v=2.1"></script>
+  <!-- Application Logic -->
+  <script src="/js/app.js?v=4.2"></script>
 </body>
 </html>
