@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AEGIS // Cyber Defense SOC - Network IDS Console</title>
-  <meta name="description" content="Real-time Network Intrusion Detection System Cyber SOC Dashboard for monitoring, triage, and threat forensics.">
+  <title>AEGIS // Cyber Defense SOC Console v2.0 - Network IDS</title>
+  <meta name="description" content="Enterprise Network Intrusion Detection System Cyber SOC Dashboard for monitoring, MITRE ATT&CK triage, telemetry, and active IPS defense.">
   
   <!-- Modern Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=2.1">
 </head>
 <body class="cyber-theme">
   <!-- Ambient background glow layers -->
@@ -23,7 +23,7 @@
   <!-- Main App Shell -->
   <div class="app-container">
     
-    <!-- Top Cyber Header -->
+    <!-- Top Cyber SOC Header -->
     <header class="soc-header">
       <div class="header-brand">
         <div class="shield-badge">
@@ -34,8 +34,8 @@
           <div class="radar-ping"></div>
         </div>
         <div class="brand-text">
-          <div class="brand-title">AEGIS <span class="accent-text">// IDS SENSOR</span></div>
-          <div class="brand-subtitle">CYBER THREAT DETECTION & INCIDENT TRIAGE ENGINE</div>
+          <div class="brand-title">AEGIS <span class="accent-text">// CYBER SOC v2.0</span></div>
+          <div class="brand-subtitle">CYBER THREAT DETECTION & INCIDENT TRIAGE ENGINE // MITRE ATT&CK & ACTIVE IPS</div>
         </div>
       </div>
 
@@ -43,31 +43,47 @@
       <div class="header-hud">
         <div class="status-indicator online" id="sensor-status-badge">
           <span class="status-dot"></span>
-          <span class="status-label" id="sensor-status-text">SENSOR ACTIVE (MONITORING)</span>
+          <span class="status-label" id="sensor-status-text">SENSOR ACTIVE</span>
+        </div>
+        <div class="hud-item defcon-pill" id="hud-threat-defcon">
+          <span class="hud-label">DEFCON</span>
+          <span class="hud-value font-mono defcon-val" id="defcon-status-text">NORMAL</span>
         </div>
         <div class="hud-item">
           <span class="hud-label">TIME</span>
           <span class="hud-value font-mono" id="live-clock">00:00:00 UTC</span>
         </div>
-        <div class="hud-item cursor-pointer" id="btn-change-target" title="Click to connect to remote Linux IDS IP">
-          <span class="hud-label">SENSOR HOST</span>
-          <span class="hud-value font-mono" id="hud-target-url" style="color:var(--accent-cyan);">LOCAL</span>
+        <div class="hud-item cursor-pointer" id="btn-change-target" title="Sensor IP target">
+          <span class="hud-label">HOST</span>
+          <span class="hud-value font-mono" id="hud-target-url" style="color:var(--accent-cyan);">LOCAL SENSOR</span>
         </div>
         <div class="hud-item">
           <span class="hud-label">STREAM</span>
-          <span class="hud-value" id="sse-status-pill">CONNECTED</span>
+          <span class="hud-value font-mono" id="sse-status-pill">CONNECTED</span>
         </div>
       </div>
 
       <!-- Action Bar -->
       <div class="header-actions">
-        <button id="btn-simulate" class="btn btn-primary glow-btn" title="Simulate multi-vector attack from PCAP">
+        <!-- Attack Scenario Launcher -->
+        <button id="btn-open-scenarios" class="btn btn-primary glow-btn" title="Open Multi-Vector Attack Simulator">
           <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
             <polygon points="5 3 19 12 5 21 5 3"/>
           </svg>
-          <span>Simulate Attack</span>
+          <span>Attack Launcher</span>
         </button>
 
+        <!-- CSV Export -->
+        <button id="btn-export-csv" class="btn btn-secondary" title="Export incident report as CSV">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Export Report</span>
+        </button>
+
+        <!-- Rule Tuner -->
         <button id="btn-config" class="btn btn-secondary" title="Tune detection thresholds">
           <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"/>
@@ -76,6 +92,7 @@
           <span>Rule Tuner</span>
         </button>
 
+        <!-- Audio Alert Chime Toggle -->
         <button id="btn-audio-toggle" class="btn btn-icon" title="Toggle Alert Audio Chime">
           <svg id="icon-sound-on" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
@@ -88,7 +105,8 @@
           </svg>
         </button>
 
-        <button id="btn-clear-db" class="btn btn-danger" title="Purge historical events">
+        <!-- Clear Logs -->
+        <button id="btn-clear-db" class="btn btn-danger" title="Purge database events and reset">
           <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="3 6 5 6 21 6"/>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -98,18 +116,18 @@
       </div>
     </header>
 
-    <!-- Top KPI Stat Metric Cards -->
+    <!-- Top KPI Stat Metric Strip -->
     <section class="kpi-grid">
       <!-- Total Alerts -->
       <div class="kpi-card glass-panel" id="card-total-threats">
         <div class="kpi-header">
-          <span class="kpi-title">TOTAL THREATS INTERCEPTED</span>
+          <span class="kpi-title">TOTAL INCIDENTS INTERCEPTED</span>
           <span class="kpi-badge font-mono">ALL TIME</span>
         </div>
         <div class="kpi-body">
           <div class="kpi-value font-mono" id="stat-total-count">0</div>
           <div class="kpi-trend" id="stat-threat-trend">
-            <span class="trend-icon">🛡️</span> Continuous Network Monitoring
+            <span class="trend-icon">🛡️</span> Continuous Packet Sniffing
           </div>
         </div>
         <div class="kpi-bar-track">
@@ -120,12 +138,12 @@
       <!-- Critical Alerts -->
       <div class="kpi-card glass-panel border-critical" id="card-critical">
         <div class="kpi-header">
-          <span class="kpi-title text-critical">CRITICAL INCIDENTS</span>
+          <span class="kpi-title text-critical">CRITICAL PRIORITY</span>
           <span class="kpi-badge badge-critical font-mono">PRIORITY 1</span>
         </div>
         <div class="kpi-body">
           <div class="kpi-value text-critical font-mono" id="stat-critical-count">0</div>
-          <div class="kpi-trend text-muted">Immediate Threat Response</div>
+          <div class="kpi-trend text-muted">SYN Floods & MITM Poisoning</div>
         </div>
         <div class="kpi-bar-track">
           <div class="kpi-bar-fill fill-critical" id="bar-critical" style="width: 0%;"></div>
@@ -140,10 +158,25 @@
         </div>
         <div class="kpi-body">
           <div class="kpi-value text-high font-mono" id="stat-high-count">0</div>
-          <div class="kpi-trend text-muted">Port / UDP Scans Detected</div>
+          <div class="kpi-trend text-muted">Port Scans & DNS Exfiltration</div>
         </div>
         <div class="kpi-bar-track">
           <div class="kpi-bar-fill fill-high" id="bar-high" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Active IPS Quarantine -->
+      <div class="kpi-card glass-panel border-quarantine" id="card-quarantine">
+        <div class="kpi-header">
+          <span class="kpi-title text-purple">ACTIVE IPS QUARANTINE</span>
+          <span class="kpi-badge badge-purple font-mono" id="badge-quarantine-status">ENFORCING</span>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value text-purple font-mono" id="stat-quarantine-count">0</div>
+          <div class="kpi-trend text-muted">Automated Threat Mitigation</div>
+        </div>
+        <div class="kpi-bar-track">
+          <div class="kpi-bar-fill fill-purple" id="bar-quarantine" style="width: 100%;"></div>
         </div>
       </div>
 
@@ -169,19 +202,144 @@
       </div>
     </section>
 
-    <!-- Visual Analytics Deck -->
+    <!-- Visual SOC Telemetry Decks (Row 1) -->
+    <section class="telemetry-grid">
+      <!-- Interactive Network Attack Topology Visualizer -->
+      <div class="chart-card glass-panel topology-card">
+        <div class="card-header">
+          <div class="header-title-group">
+            <span class="panel-icon">🕸️</span>
+            <div>
+              <h2 class="panel-title">LIVE NETWORK ATTACK TOPOLOGY GRAPH</h2>
+              <span class="panel-subtitle">Real-time threat vectors propagating against monitored IDS sensor</span>
+            </div>
+          </div>
+          <div class="topology-legend">
+            <span class="topo-legend-item"><span class="dot bg-cyan pulse-dot"></span> Sensor Host</span>
+            <span class="topo-legend-item"><span class="dot bg-critical"></span> Attacker Nodes</span>
+          </div>
+        </div>
+        <div class="chart-wrapper topology-wrapper">
+          <canvas id="canvas-topology" width="560" height="260"></canvas>
+        </div>
+      </div>
+
+      <!-- Rolling Telemetry & Throughput Timeline -->
+      <div class="chart-card glass-panel timeline-card">
+        <div class="card-header">
+          <div class="header-title-group">
+            <span class="panel-icon">📈</span>
+            <div>
+              <h2 class="panel-title">REAL-TIME TRAFFIC & THREAT TIMELINE</h2>
+              <span class="panel-subtitle">Rolling packets per second & incident spikes</span>
+            </div>
+          </div>
+          <span class="live-tag"><span class="pulse-dot"></span> STREAMING</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="canvas-telemetry" width="560" height="260"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- MITRE ATT&CK Framework Enterprise Matrix Strip -->
+    <section class="mitre-section glass-panel">
+      <div class="mitre-header">
+        <div class="header-title-group">
+          <span class="panel-icon">🎯</span>
+          <div>
+            <h2 class="panel-title">MITRE ATT&CK® ENTERPRISE THREAT MATRIX</h2>
+            <span class="panel-subtitle">Industry-standard adversarial tactic & technique mapping</span>
+          </div>
+        </div>
+        <span class="badge font-mono" id="mitre-active-badge">5 TECHNIQUES MONITORED</span>
+      </div>
+
+      <div class="mitre-grid">
+        <!-- T1046: Network Service Discovery -->
+        <div class="mitre-card" id="mitre-T1046">
+          <div class="mitre-top">
+            <span class="mitre-tactic">DISCOVERY</span>
+            <span class="mitre-id font-mono">T1046</span>
+          </div>
+          <div class="mitre-title">Network Service Discovery</div>
+          <div class="mitre-desc">TCP/UDP Port scanning & service probing</div>
+          <div class="mitre-footer">
+            <span class="mitre-hits font-mono" id="hit-T1046">0 HITS</span>
+            <span class="mitre-status font-mono">ACTIVE</span>
+          </div>
+        </div>
+
+        <!-- T1498: Network Denial of Service -->
+        <div class="mitre-card" id="mitre-T1498">
+          <div class="mitre-top">
+            <span class="mitre-tactic">IMPACT</span>
+            <span class="mitre-id font-mono">T1498.001</span>
+          </div>
+          <div class="mitre-title">Network Denial of Service</div>
+          <div class="mitre-desc">TCP SYN flood backlog queue exhaustion</div>
+          <div class="mitre-footer">
+            <span class="mitre-hits font-mono" id="hit-T1498">0 HITS</span>
+            <span class="mitre-status font-mono">ACTIVE</span>
+          </div>
+        </div>
+
+        <!-- T1557: Adversary-in-the-Middle -->
+        <div class="mitre-card" id="mitre-T1557">
+          <div class="mitre-top">
+            <span class="mitre-tactic">CREDENTIAL ACCESS</span>
+            <span class="mitre-id font-mono">T1557.002</span>
+          </div>
+          <div class="mitre-title">Adversary-in-the-Middle</div>
+          <div class="mitre-desc">ARP cache poisoning & gateway spoofing</div>
+          <div class="mitre-footer">
+            <span class="mitre-hits font-mono" id="hit-T1557">0 HITS</span>
+            <span class="mitre-status font-mono">ACTIVE</span>
+          </div>
+        </div>
+
+        <!-- T1071: DNS Tunneling -->
+        <div class="mitre-card" id="mitre-T1071">
+          <div class="mitre-top">
+            <span class="mitre-tactic">COMMAND & CONTROL</span>
+            <span class="mitre-id font-mono">T1071.004</span>
+          </div>
+          <div class="mitre-title">DNS Data Exfiltration</div>
+          <div class="mitre-desc">Covert tunneling over DNS queries</div>
+          <div class="mitre-footer">
+            <span class="mitre-hits font-mono" id="hit-T1071">0 HITS</span>
+            <span class="mitre-status font-mono">ACTIVE</span>
+          </div>
+        </div>
+
+        <!-- T1568: Dynamic Resolution DGA -->
+        <div class="mitre-card" id="mitre-T1568">
+          <div class="mitre-top">
+            <span class="mitre-tactic">DEFENSE EVASION</span>
+            <span class="mitre-id font-mono">T1568.002</span>
+          </div>
+          <div class="mitre-title">Domain Generation Algorithms</div>
+          <div class="mitre-desc">Botnet DGA probing & NXDOMAIN bursts</div>
+          <div class="mitre-footer">
+            <span class="mitre-hits font-mono" id="hit-T1568">0 HITS</span>
+            <span class="mitre-status font-mono">ACTIVE</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Secondary Analytics Row -->
     <section class="analytics-grid">
       <!-- Threat Vector Distribution -->
       <div class="chart-card glass-panel">
         <div class="card-header">
           <div class="header-title-group">
             <span class="panel-icon">📊</span>
-            <h2 class="panel-title">THREAT VECTOR CLASSIFICATION</h2>
+            <h2 class="panel-title">THREAT VECTOR DISTRIBUTION</h2>
           </div>
-          <span class="live-tag"><span class="pulse-dot"></span> LIVE</span>
         </div>
         <div class="chart-wrapper">
-          <canvas id="canvas-vectors" width="500" height="240"></canvas>
+          <canvas id="canvas-vectors" width="380" height="220"></canvas>
         </div>
       </div>
 
@@ -194,7 +352,7 @@
           </div>
         </div>
         <div class="chart-wrapper donut-wrapper">
-          <canvas id="canvas-severity" width="240" height="240"></canvas>
+          <canvas id="canvas-severity" width="220" height="220"></canvas>
           <div class="donut-legend" id="donut-legend">
             <div class="legend-item"><span class="dot bg-critical"></span> Critical</div>
             <div class="legend-item"><span class="dot bg-high"></span> High</div>
@@ -204,16 +362,19 @@
         </div>
       </div>
 
-      <!-- Top Attacker Origins Matrix -->
+      <!-- Active IPS Firewall Quarantine Deck -->
       <div class="chart-card glass-panel">
         <div class="card-header">
           <div class="header-title-group">
-            <span class="panel-icon">☣️</span>
-            <h2 class="panel-title">TOP ATTACKER ORIGIN MATRIX</h2>
+            <span class="panel-icon">🛑</span>
+            <h2 class="panel-title">ACTIVE DEFENSE // FIREWALL QUARANTINE</h2>
           </div>
+          <button id="btn-refresh-quarantine" class="btn btn-secondary btn-sm" title="Refresh Banned IPs">
+            <span>🔄 Refresh</span>
+          </button>
         </div>
-        <div class="top-sources-list" id="top-sources-container">
-          <div class="empty-state">No malicious sources recorded yet. Run simulation or capture traffic.</div>
+        <div class="quarantine-container" id="quarantine-container">
+          <div class="empty-state">No IP addresses currently under IPS quarantine.</div>
         </div>
       </div>
     </section>
@@ -223,7 +384,10 @@
       <div class="incident-header">
         <div class="section-title-group">
           <span class="panel-icon">⚡</span>
-          <h2 class="panel-title">LIVE INCIDENT STREAM & FORENSICS LOG</h2>
+          <div>
+            <h2 class="panel-title">LIVE INCIDENT STREAM & FORENSICS LOG</h2>
+            <span class="panel-subtitle">Real-time packet inspection alerts streamed via Server-Sent Events (SSE)</span>
+          </div>
           <span class="badge font-mono" id="incident-stream-badge">0 EVENTS</span>
         </div>
 
@@ -268,19 +432,20 @@
               <th style="width: 140px;">TIMESTAMP</th>
               <th style="width: 110px;">SEVERITY</th>
               <th style="width: 160px;">THREAT VECTOR</th>
+              <th style="width: 120px;">MITRE ATT&CK</th>
               <th style="width: 140px;">ATTACKER (SRC)</th>
               <th style="width: 140px;">TARGET (DST)</th>
               <th>INCIDENT DESCRIPTION</th>
-              <th style="width: 90px; text-align: center;">ACTION</th>
+              <th style="width: 140px; text-align: center;">ACTIONS</th>
             </tr>
           </thead>
           <tbody id="incident-tbody">
             <tr class="empty-row">
-              <td colspan="7">
+              <td colspan="8">
                 <div class="table-empty">
                   <div class="pulse-radar-loader"></div>
                   <div class="empty-text">Listening for security events on sensor interface...</div>
-                  <div class="empty-hint">Click <strong>"Simulate Attack"</strong> above to replay pre-recorded multi-vector scenarios.</div>
+                  <div class="empty-hint">Click <strong>"Attack Launcher"</strong> above to replay attack scenarios.</div>
                 </div>
               </td>
             </tr>
@@ -291,13 +456,119 @@
 
   </div>
 
+  <!-- Multi-Vector Attack Scenario Launcher Modal -->
+  <div class="modal-backdrop hidden" id="scenario-modal">
+    <div class="modal-card glass-panel scenario-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">🚀</span>
+          <div>
+            <h3 class="modal-title">MULTI-VECTOR ATTACK SIMULATION LAUNCHER</h3>
+            <span class="modal-subtitle">Inject pre-recorded or synthetic adversarial traffic through the complete IDS pipeline</span>
+          </div>
+        </div>
+        <button class="modal-close" id="btn-close-scenario">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="scenario-grid">
+          <!-- Scenario 1: Port Scan -->
+          <div class="scenario-card">
+            <div class="scenario-badge badge-high font-mono">RECONNAISSANCE</div>
+            <h4 class="scenario-title">1. Nmap Stealth TCP Port Scan</h4>
+            <p class="scenario-desc">Probes 15 distinct TCP destination ports (21, 22, 80, 443, 3389, 8080) within 2 seconds using unsolicited TCP SYN frames.</p>
+            <div class="scenario-meta">
+              <span><strong>Vector:</strong> TCP_PORT_SCAN</span>
+              <span><strong>MITRE:</strong> T1046</span>
+            </div>
+            <button class="btn btn-primary btn-sm btn-launch-scenario" data-scenario="port_scan">
+              <span>Launch Recon Scan</span>
+            </button>
+          </div>
+
+          <!-- Scenario 2: SYN Flood -->
+          <div class="scenario-card">
+            <div class="scenario-badge badge-critical font-mono">DENIAL OF SERVICE</div>
+            <h4 class="scenario-title">2. High-Rate TCP SYN Flood</h4>
+            <p class="scenario-desc">Blasts 200 high-velocity TCP SYN frames against HTTP port 80 to saturate and exhaust the kernel TCP backlog queue.</p>
+            <div class="scenario-meta">
+              <span><strong>Vector:</strong> TCP_SYN_FLOOD</span>
+              <span><strong>MITRE:</strong> T1498.001</span>
+            </div>
+            <button class="btn btn-primary btn-sm btn-launch-scenario" data-scenario="syn_flood">
+              <span>Launch SYN Flood</span>
+            </button>
+          </div>
+
+          <!-- Scenario 3: ARP Spoofing -->
+          <div class="scenario-card">
+            <div class="scenario-badge badge-critical font-mono">MAN-IN-THE-MIDDLE</div>
+            <h4 class="scenario-title">3. ARP Cache Poisoning (MITM)</h4>
+            <p class="scenario-desc">Injects gratuitous ARP is-at replies associating the default gateway IP (192.168.1.1) with an unauthorized attacker MAC address.</p>
+            <div class="scenario-meta">
+              <span><strong>Vector:</strong> ARP_SPOOFING</span>
+              <span><strong>MITRE:</strong> T1557.002</span>
+            </div>
+            <button class="btn btn-primary btn-sm btn-launch-scenario" data-scenario="arp_spoof">
+              <span>Launch ARP Poison</span>
+            </button>
+          </div>
+
+          <!-- Scenario 4: DNS Tunneling -->
+          <div class="scenario-card">
+            <div class="scenario-badge badge-high font-mono">EXFILTRATION</div>
+            <h4 class="scenario-title">4. Covert DNS Data Tunneling</h4>
+            <p class="scenario-desc">Encodes simulated credential payload into deep DNS subdomains (>50 characters) and triggers bursts of NXDOMAIN responses.</p>
+            <div class="scenario-meta">
+              <span><strong>Vector:</strong> DNS_TUNNELING</span>
+              <span><strong>MITRE:</strong> T1071.004</span>
+            </div>
+            <button class="btn btn-primary btn-sm btn-launch-scenario" data-scenario="dns_anomaly">
+              <span>Launch DNS Exfil</span>
+            </button>
+          </div>
+
+          <!-- Scenario 5: UDP Scan -->
+          <div class="scenario-card">
+            <div class="scenario-badge badge-low font-mono">SERVICE ENUMERATION</div>
+            <h4 class="scenario-title">5. UDP Service Probing</h4>
+            <p class="scenario-desc">Probes 10 UDP services (DNS, DHCP, TFTP, NTP, SNMP, IKE) across randomized source ports.</p>
+            <div class="scenario-meta">
+              <span><strong>Vector:</strong> UDP_PORT_SCAN</span>
+              <span><strong>MITRE:</strong> T1046</span>
+            </div>
+            <button class="btn btn-primary btn-sm btn-launch-scenario" data-scenario="udp_scan">
+              <span>Launch UDP Scan</span>
+            </button>
+          </div>
+
+          <!-- Scenario 6: Full Multi-Vector APT -->
+          <div class="scenario-card scenario-card-featured">
+            <div class="scenario-badge badge-critical font-mono">FULL APT CAMPAIGN</div>
+            <h4 class="scenario-title">6. Multi-Vector Attack Campaign</h4>
+            <p class="scenario-desc">Executes all 5 attack vectors sequentially in a coordinated multi-stage cyber campaign (265 packets).</p>
+            <div class="scenario-meta">
+              <span><strong>Vectors:</strong> Port + UDP + SYN + ARP + DNS</span>
+              <span><strong>Packets:</strong> 265 frames</span>
+            </div>
+            <button class="btn btn-primary glow-btn btn-launch-scenario" data-scenario="multi_vector">
+              <span>Launch Full APT Attack</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Deep Forensic Inspection Drawer / Modal -->
   <div class="modal-backdrop hidden" id="forensics-modal">
     <div class="modal-card glass-panel">
       <div class="modal-header">
         <div class="modal-title-wrap">
           <span class="modal-icon">🔬</span>
-          <h3 class="modal-title" id="forensic-title">DEEP PACKET FORENSICS</h3>
+          <div>
+            <h3 class="modal-title" id="forensic-title">DEEP PACKET FORENSICS</h3>
+            <span class="modal-subtitle">Raw packet evidence, protocol decode & MITRE correlation</span>
+          </div>
         </div>
         <button class="modal-close" id="btn-close-forensic">&times;</button>
       </div>
@@ -313,7 +584,10 @@
       <div class="modal-header">
         <div class="modal-title-wrap">
           <span class="modal-icon">⚙️</span>
-          <h3 class="modal-title">IDS DETECTION RULE TUNER</h3>
+          <div>
+            <h3 class="modal-title">IDS DETECTION RULE TUNER</h3>
+            <span class="modal-subtitle">Modify sliding-window thresholds and alert sensitivity in real time</span>
+          </div>
         </div>
         <button class="modal-close" id="btn-close-config">&times;</button>
       </div>
@@ -391,7 +665,7 @@
   <!-- Toast Notification System -->
   <div class="toast-container" id="toast-container"></div>
 
-  <!-- Audio Context Chime Synth -->
-  <script src="/js/app.js"></script>
+  <!-- SOC Application Logic -->
+  <script src="/js/app.js?v=2.1"></script>
 </body>
 </html>

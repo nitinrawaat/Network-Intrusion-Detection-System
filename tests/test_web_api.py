@@ -156,6 +156,56 @@ class TestWebDashboardApi(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(self.storage.count(), 0)
 
+    def test_api_mitre(self):
+        status, body = self._get("/api/mitre")
+        self.assertEqual(status, 200)
+        data = json.loads(body.decode("utf-8"))
+        self.assertIn("mitre_techniques", data)
+        self.assertIn("TCP_PORT_SCAN", data["mitre_techniques"])
+        self.assertEqual(data["mitre_techniques"]["TCP_PORT_SCAN"]["technique_id"], "T1046")
+
+    def test_api_quarantine_and_unblock(self):
+        # 1. Initially empty
+        status, body = self._get("/api/quarantine")
+        self.assertEqual(status, 200)
+        data = json.loads(body.decode("utf-8"))
+        self.assertEqual(data["count"], 0)
+
+        # 2. Block IP
+        payload = {"ip": "192.168.1.150", "reason": "SYN flood detected", "severity": "HIGH"}
+        status, body = self._post("/api/quarantine", payload)
+        self.assertEqual(status, 200)
+
+        # 3. Verify in list
+        status, body = self._get("/api/quarantine")
+        self.assertEqual(status, 200)
+        data = json.loads(body.decode("utf-8"))
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["quarantined_ips"][0]["ip"], "192.168.1.150")
+
+        # 4. Unblock IP
+        status, body = self._post("/api/quarantine/unblock", {"ip": "192.168.1.150"})
+        self.assertEqual(status, 200)
+        status, body = self._get("/api/quarantine")
+        data = json.loads(body.decode("utf-8"))
+        self.assertEqual(data["count"], 0)
+
+    def test_api_export_csv(self):
+        status, body = self._get("/api/export/csv")
+        self.assertEqual(status, 200)
+        csv_text = body.decode("utf-8")
+        self.assertIn("Incident_ID,Timestamp_UTC,Severity", csv_text)
+        self.assertIn("192.168.1.100", csv_text)
+        self.assertIn("T1046", csv_text)
+
+    def test_api_telemetry(self):
+        status, body = self._get("/api/telemetry")
+        self.assertEqual(status, 200)
+        data = json.loads(body.decode("utf-8"))
+        self.assertIn("uptime_seconds", data)
+        self.assertIn("packets_per_second", data)
+        self.assertIn("threat_level", data)
+
     def test_web_broadcast_sink(self):
         q = self.broadcast_sink.subscribe()
         self.assertTrue(q.empty())

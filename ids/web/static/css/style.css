@@ -1013,6 +1013,358 @@ body {
 }
 
 /* ==========================================================================
+   SOC v2.0 Extensions: Defcon, Telemetry, MITRE ATT&CK, Quarantine, Scenarios
+   ========================================================================== */
+
+/* Defcon Pill */
+.defcon-pill {
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  transition: all 0.3s ease;
+}
+
+.defcon-pill.defcon-CRITICAL {
+  background: rgba(255, 0, 85, 0.2);
+  border-color: var(--color-critical);
+  box-shadow: 0 0 15px var(--color-critical-glow);
+  animation: pulse-border 1.5s infinite alternate;
+}
+
+.defcon-pill.defcon-HIGH {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--color-high);
+}
+
+.defcon-pill.defcon-ELEVATED {
+  background: rgba(234, 179, 8, 0.15);
+  border-color: var(--color-medium);
+}
+
+.defcon-val {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.border-quarantine {
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.badge-purple {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.fill-purple {
+  background: linear-gradient(90deg, #8b5cf6, #c084fc);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+.text-purple {
+  color: #c084fc;
+}
+
+/* Telemetry Grid (Row 1) */
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.topology-wrapper {
+  position: relative;
+  height: 260px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topology-legend {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.topo-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.panel-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+/* MITRE ATT&CK Matrix Grid */
+.mitre-section {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.mitre-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mitre-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.mitre-card {
+  background: rgba(10, 16, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mitre-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 242, 254, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.mitre-card.has-hits {
+  border-color: rgba(255, 0, 85, 0.4);
+  background: rgba(255, 0, 85, 0.05);
+}
+
+.mitre-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mitre-tactic {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mitre-id {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+.mitre-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mitre-desc {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  flex: 1;
+}
+
+.mitre-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mitre-hits {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.mitre-card.has-hits .mitre-hits {
+  color: var(--color-critical);
+}
+
+.mitre-status {
+  font-size: 0.68rem;
+  color: var(--color-emerald);
+}
+
+/* MITRE Pill in table */
+.mitre-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(0, 242, 254, 0.1);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+}
+
+/* Active Defense / Quarantine Container */
+.quarantine-container {
+  overflow-y: auto;
+  max-height: 220px;
+  padding-right: 4px;
+}
+
+.quarantine-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.quarantine-table th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.quarantine-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.btn-unblock {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-unblock:hover {
+  background: rgba(255, 0, 85, 0.2);
+  border-color: var(--color-critical);
+  color: var(--color-critical);
+}
+
+.btn-quarantine {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #c084fc;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 4px;
+}
+
+.btn-quarantine:hover {
+  background: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+}
+
+/* Scenario Modal Grid */
+.scenario-modal-card {
+  max-width: 900px;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 10px 0;
+}
+
+.scenario-card {
+  background: rgba(10, 16, 30, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.25s ease;
+}
+
+.scenario-card:hover {
+  border-color: rgba(0, 242, 254, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.scenario-card-featured {
+  grid-column: span 3;
+  background: linear-gradient(135deg, rgba(16, 24, 44, 0.9), rgba(255, 0, 85, 0.08));
+  border-color: rgba(255, 0, 85, 0.3);
+}
+
+.scenario-badge {
+  align-self: flex-start;
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.scenario-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.scenario-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.scenario-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  padding: 6px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.modal-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+@media (max-width: 1100px) {
+  .telemetry-grid {
+    grid-template-columns: 1fr;
+  }
+  .mitre-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .scenario-grid {
+    grid-template-columns: 1fr;
+  }
+  .scenario-card-featured {
+    grid-column: span 1;
+  }
+}
+
+/* ==========================================================================
    Toasts
    ========================================================================== */
 
