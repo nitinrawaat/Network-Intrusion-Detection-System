@@ -823,17 +823,17 @@
 
     const btnSensorSimulate = document.getElementById('btn-sensor-simulate');
     if (btnSensorSimulate) {
-      btnSensorSimulate.addEventListener('click', async () => {
-        showToast('Stream buffer stopped & flushed');
-        try {
-          await fetch('/api/simulate', {
+      btnSensorSimulate.addEventListener('click', () => {
+        const scenarioModal = document.getElementById('scenario-modal');
+        if (scenarioModal) {
+          scenarioModal.classList.remove('hidden');
+        } else {
+          showToast('Triggering test attack scenario...');
+          fetch('/api/simulate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ type: 'syn_flood', count: 100 })
-          });
-          syncBackendData();
-        } catch {
-          syncBackendData();
+          }).then(() => syncBackendData());
         }
       });
     }
