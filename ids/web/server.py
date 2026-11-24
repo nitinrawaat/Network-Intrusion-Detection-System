@@ -665,6 +665,8 @@ class DashboardServer:
             "active_detectors": detectors,
             "detector_count": len(detectors),
             "storage_db": getattr(self.sqlite_storage, "db_path", "logs/events.db"),
+            "packets_inspected": self.total_packets_seen,
+            "packet_rate": self.recent_packet_rate,
         }
 
     def run_simulation(self, pcap_path: str):

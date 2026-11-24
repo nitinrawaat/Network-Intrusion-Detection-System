@@ -1162,6 +1162,14 @@ body.donezo-theme {
   margin-top: 14px;
 }
 
+.stream-controls-label {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: -0.2px;
+}
+
 .sensor-ctrl-btn {
   width: 38px;
   height: 38px;
