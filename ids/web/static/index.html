@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="/css/style.css?v=4.7">
+  <link rel="stylesheet" href="/css/style.css?v=5.2">
 </head>
 <body class="donezo-theme">
   <!-- Outer Page Frame Container -->
@@ -488,53 +488,6 @@
               </div>
             </div>
 
-            <!-- Column 3: Sensor Node Telemetry (Donezo Dark Green Card) -->
-            <div class="card-panel panel-sensor-telemetry">
-              <div class="sensor-card-texture"></div>
-              <div class="sensor-card-content">
-                <div class="sensor-card-header">
-                  <span class="sensor-card-title">Sensor Node Telemetry</span>
-                  <span class="sensor-status-dot-pulse" title="Promiscuous Sniffer Active"></span>
-                </div>
-                
-                <div class="sensor-time-display">
-                  <div class="sensor-big-metric" id="sensor-metric-val">1,420</div>
-                  <div class="sensor-metric-unit">pkts/sec inspected</div>
-                </div>
-
-                <div class="sensor-node-specs">
-                  <div class="spec-row">
-                    <span class="spec-label">Interface</span>
-                    <span class="spec-value font-mono" id="sensor-interface-val">Default (All)</span>
-                  </div>
-                  <div class="spec-row">
-                    <span class="spec-label">Storage Engine</span>
-                    <span class="spec-value font-mono">SQLite 3 (WAL)</span>
-                  </div>
-                  <div class="spec-row">
-                    <span class="spec-label">Inspection Window</span>
-                    <span class="spec-value font-mono">60s Sliding</span>
-                  </div>
-                </div>
-
-                <div class="sensor-card-actions">
-                  <button class="sensor-ctrl-btn btn-white-round" id="btn-sensor-pause" type="button" title="Pause / Resume Live Feed">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
-                      <rect x="6" y="5" width="3.5" height="14" rx="1.5"/>
-                      <rect x="14.5" y="5" width="3.5" height="14" rx="1.5"/>
-                    </svg>
-                  </button>
-                  <button class="btn-sensor-pill" id="btn-sensor-simulate" type="button">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                    </svg>
-                    <span>Launch Test Attack</span>
-                  </button>
-                  <span class="stream-controls-label">Stream Controls</span>
-                </div>
-              </div>
-            </div>
-
           </section>
 
         </div>
@@ -811,6 +764,6 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- Application Logic -->
-  <script src="/js/app.js?v=5.1"></script>
+  <script src="/js/app.js?v=5.2"></script>
 </body>
 </html>
