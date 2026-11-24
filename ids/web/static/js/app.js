@@ -199,14 +199,21 @@
 
     let info;
     if (liveEvent) {
+      const evEvidence = typeof liveEvent.evidence === 'string'
+        ? liveEvent.evidence
+        : JSON.stringify(liveEvent.evidence || {}, null, 2);
+      const mitreLabel = (liveEvent.mitre && liveEvent.mitre.technique_id)
+        ? `${liveEvent.mitre.technique_id} ${liveEvent.mitre.name || ''}`
+        : (liveEvent.mitre_technique || 'T1046');
+
       info = {
         source: liveEvent.source_ip,
         target: liveEvent.destination_ip || '192.168.1.50',
         detector: liveEvent.detector || 'PortScanDetector',
         vector: liveEvent.event_type || 'TCP_PORT_SCAN',
         severity: liveEvent.severity || 'HIGH',
-        evidence: JSON.stringify(liveEvent.evidence || {}, null, 2),
-        mitre: liveEvent.mitre_technique || 'T1046'
+        evidence: evEvidence,
+        mitre: mitreLabel
       };
     } else {
       // High-fidelity fallback scenarios
@@ -572,10 +579,17 @@
     }
   }
 
-  // --- LIVE EVENT SSE STREAM ---
+  // --- LIVE EVENT SSE STREAM & PROGRESSIVE POLLING ---
+  function pollSimulationUpdates() {
+    // Progressively sync backend data as packets are parsed & alerts persist
+    [200, 600, 1200, 2000, 3200].forEach(delay => {
+      setTimeout(syncBackendData, delay);
+    });
+  }
+
   function initEventStream() {
     try {
-      state.eventSource = new EventSource('/api/stream');
+      state.eventSource = new EventSource('/api/events/stream');
       state.eventSource.onmessage = (e) => {
         try {
           const data = JSON.parse(e.data);
@@ -584,6 +598,9 @@
             syncBackendData();
           }
         } catch {}
+      };
+      state.eventSource.onerror = () => {
+        // Fallback reconnection handled automatically by EventSource
       };
     } catch {}
   }
@@ -844,18 +861,21 @@
 
     const btnSensorSimulate = document.getElementById('btn-sensor-simulate');
     if (btnSensorSimulate) {
-      btnSensorSimulate.addEventListener('click', () => {
-        const scenarioModal = document.getElementById('scenario-modal');
-        if (scenarioModal) {
-          scenarioModal.classList.remove('hidden');
-        } else {
-          showToast('Triggering test attack scenario...');
-          fetch('/api/simulate', {
+      btnSensorSimulate.addEventListener('click', async () => {
+        showToast('Launching live multi-vector attack test...');
+        try {
+          const resp = await fetch('/api/simulate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'syn_flood', count: 100 })
-          }).then(() => syncBackendData());
+            body: JSON.stringify({ scenario: 'multi_vector' })
+          });
+          if (resp.ok) {
+            showToast('Live test attack injected! Streaming packets into IDS...');
+          }
+        } catch (err) {
+          console.error('Error triggering test attack:', err);
         }
+        pollSimulationUpdates();
       });
     }
   }
@@ -964,11 +984,15 @@
     document.querySelectorAll('.btn-scenario-action').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         const card = e.target.closest('.scenario-item-card');
-        const scenario = card ? card.dataset.scenario : 'port_scan';
+        const scenario = card ? (card.dataset.scenario || 'multi_vector') : 'multi_vector';
         try {
-          const resp = await fetch(`/api/scenario/${scenario}`, { method: 'POST' });
+          const resp = await fetch(`/api/scenario/${scenario}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ scenario })
+          });
           if (resp.ok) {
-            showToast(`Launched ${scenario.replace('_', ' ').toUpperCase()} attack simulation`);
+            showToast(`Launched ${scenario.replace(/_/g, ' ').toUpperCase()} attack simulation`);
           } else {
             showToast(`Simulation triggered: ${scenario}`);
           }
@@ -976,7 +1000,7 @@
           showToast(`Simulation triggered: ${scenario}`);
         }
         if (scenarioModal) scenarioModal.classList.add('hidden');
-        setTimeout(syncBackendData, 1000);
+        pollSimulationUpdates();
       });
     });
 

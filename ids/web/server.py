@@ -178,7 +178,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self._handle_api_summary()
         elif path == "/api/events":
             self._handle_api_events(query)
-        elif path == "/api/events/stream":
+        elif path in ("/api/events/stream", "/api/stream"):
             self._handle_api_stream()
         elif path == "/api/config":
             self._handle_api_get_config()
@@ -208,6 +208,9 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self._handle_api_post_config()
         elif path == "/api/simulate":
             self._handle_api_simulate()
+        elif path.startswith("/api/scenario/"):
+            scenario_name = path[len("/api/scenario/"):].strip("/")
+            self._handle_api_simulate(scenario=scenario_name)
         elif path == "/api/clear":
             self._handle_api_clear()
         elif path == "/api/quarantine":
@@ -531,10 +534,11 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             interfaces = ["eth0", "lo"]
         self._send_json({"interfaces": interfaces})
 
-    def _handle_api_simulate(self):
+    def _handle_api_simulate(self, scenario: Optional[str] = None):
         """Trigger asynchronous replay of sample attack scenarios."""
         body = self._read_json_body()
-        scenario = body.get("scenario", "all")
+        if not scenario:
+            scenario = body.get("scenario") or body.get("type") or "all"
         pcap_file = body.get("pcap")
 
         # Map scenario name to sample pcap
@@ -700,7 +704,7 @@ class DashboardServer:
                                     "blocked_at": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
                                     "status": "AUTO_ENFORCED (DROPPED)",
                                 }
-                time.sleep(0.015)  # Slight micro-delay so UI sees real-time animation
+                time.sleep(0.003)  # Fast replay with micro-pacing for real-time UI animation
 
             capture_engine.capture(packet_callback=packet_handler, pcap_file=pcap_path)
             logger.info("[+] Background simulation finished successfully.")

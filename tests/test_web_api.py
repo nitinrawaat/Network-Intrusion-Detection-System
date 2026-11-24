@@ -225,6 +225,21 @@ class TestWebDashboardApi(unittest.TestCase):
         self.assertEqual(item["source_ip"], "192.168.1.170")
         self.broadcast_sink.unsubscribe(q)
 
+    def test_api_simulate_and_scenario(self):
+        # Test POST /api/simulate
+        status, body = self._post("/api/simulate", {"scenario": "port_scan"})
+        self.assertEqual(status, 200)
+        data = json.loads(body.decode("utf-8"))
+        self.assertEqual(data["status"], "simulation_started")
+        self.assertEqual(data["scenario"], "port_scan")
+
+        # Test POST /api/scenario/syn_flood
+        status, body = self._post("/api/scenario/syn_flood", {})
+        self.assertEqual(status, 200)
+        data = json.loads(body.decode("utf-8"))
+        self.assertEqual(data["status"], "simulation_started")
+        self.assertEqual(data["scenario"], "syn_flood")
+
 
 if __name__ == "__main__":
     unittest.main()
