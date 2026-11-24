@@ -347,20 +347,30 @@
       tr.className = 'threat-log-row';
       tr.onclick = () => window.inspectForensics(String(evt.id));
 
-      const timeStr = evt.timestamp ? new Date(evt.timestamp * 1000).toLocaleTimeString() : new Date().toLocaleTimeString();
+      let ts = Number(evt.timestamp);
+      if (isNaN(ts) || ts <= 0) ts = Date.now();
+      else if (ts < 1e12) ts *= 1000;
+      const timeStr = new Date(ts).toLocaleTimeString();
+
       const sev = (evt.severity || 'HIGH').toUpperCase();
       let pillClass = 'pill-high';
       if (sev === 'CRITICAL') pillClass = 'pill-critical';
       else if (sev === 'HIGH') pillClass = 'pill-high';
       else if (sev === 'MEDIUM') pillClass = 'pill-medium';
       else if (sev === 'LOW') pillClass = 'pill-low';
+
+      const srcIp = evt.source_ip || '192.168.1.100';
       const targetStr = evt.destination_ip ? `${evt.destination_ip}` : '192.168.1.50';
+      const evType = (evt.event_type || 'SECURITY_EVENT').replace(/_/g, ' ');
+      const mitreText = (evt.mitre && evt.mitre.technique_id)
+        ? `(${evt.mitre.technique_id})`
+        : (evt.mitre_technique ? `(${evt.mitre_technique})` : '');
 
       tr.innerHTML = `
         <td class="font-mono text-muted-small">${timeStr}</td>
-        <td class="font-mono text-dark-bold">${evt.source_ip}</td>
+        <td class="font-mono text-dark-bold">${srcIp}</td>
         <td class="font-mono text-muted-small">${targetStr}</td>
-        <td><strong class="task-highlight">${evt.event_type.replace(/_/g, ' ')}</strong> ${evt.mitre_technique ? `(${evt.mitre_technique})` : ''}</td>
+        <td><strong class="task-highlight">${evType}</strong> ${mitreText}</td>
         <td><span class="member-status-pill ${pillClass}">${sev}</span></td>
         <td><button class="btn-inspect-pill" type="button" onclick="event.stopPropagation(); window.inspectForensics('${evt.id}')">Inspect</button></td>
       `;
@@ -544,6 +554,11 @@
         }
         if (pendingEl && summaryData.quarantine_count !== undefined) {
           pendingEl.textContent = summaryData.quarantine_count !== undefined ? summaryData.quarantine_count : 0;
+        }
+
+        const logsBadgeEl = document.getElementById('logs-total-badge');
+        if (logsBadgeEl && summaryData.total_events !== undefined) {
+          logsBadgeEl.textContent = `${summaryData.total_events} TOTAL INCIDENTS`;
         }
 
         // Update unseen / unread badge counter
@@ -1039,6 +1054,9 @@
     initModals();
     syncBackendData();
     initEventStream();
+
+    // Continual 2.5s synchronization: guarantees real-time logs and count updates
+    setInterval(syncBackendData, 2500);
   });
 
 })();
