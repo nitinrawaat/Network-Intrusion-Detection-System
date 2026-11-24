@@ -687,10 +687,14 @@ class DashboardServer:
 
             def packet_handler(raw_pkt):
                 self.total_packets_seen += 1
+                now = time.time()
+                raw_pkt.time = now
                 normalized = parser.parse(raw_pkt)
                 if normalized:
+                    normalized.timestamp = now
                     events = detection_engine.process_packet(normalized)
                     for ev in events:
+                        ev.timestamp = now
                         sim_alert_manager.dispatch(ev)
                         # Auto-quarantine on CRITICAL attack (Active Defense)
                         sev_str = str(getattr(ev, "severity", "")).upper()

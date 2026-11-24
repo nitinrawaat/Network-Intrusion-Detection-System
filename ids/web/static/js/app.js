@@ -325,6 +325,30 @@
     }
   };
 
+  // --- TIMESTAMP FORMATTING ---
+  function formatEventTimestamp(rawTs) {
+    if (!rawTs) return new Date().toLocaleTimeString();
+    let d;
+    const num = Number(rawTs);
+    if (!isNaN(num) && num > 0) {
+      d = new Date(num < 1e12 ? num * 1000 : num);
+    } else {
+      d = new Date(rawTs);
+    }
+    if (isNaN(d.getTime())) return String(rawTs);
+
+    const now = new Date();
+    const isToday = d.toDateString() === now.toDateString();
+    const timePart = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    if (isToday) {
+      return timePart;
+    } else {
+      const monthDay = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      return `${monthDay} ${timePart}`;
+    }
+  }
+
   // --- RENDER DYNAMIC THREAT STREAM TABLE ---
   function renderThreatStream(events) {
     const listEl = document.getElementById('team-members-list');
@@ -347,10 +371,7 @@
       tr.className = 'threat-log-row';
       tr.onclick = () => window.inspectForensics(String(evt.id));
 
-      let ts = Number(evt.timestamp);
-      if (isNaN(ts) || ts <= 0) ts = Date.now();
-      else if (ts < 1e12) ts *= 1000;
-      const timeStr = new Date(ts).toLocaleTimeString();
+      const timeStr = formatEventTimestamp(evt.timestamp);
 
       const sev = (evt.severity || 'HIGH').toUpperCase();
       let pillClass = 'pill-high';
